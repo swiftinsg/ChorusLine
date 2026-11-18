@@ -8,9 +8,10 @@ final class StudioState: ObservableObject {
     @Published var completed: Set<Int> = Set(UserDefaults.standard.array(forKey: "completedModules") as? [Int] ?? []) {
         didSet { UserDefaults.standard.set(Array(completed), forKey: "completedModules") }
     }
+    @Published var completionEvent: Int? = nil
     @Published var selectedProgression = 0
     @Published var selectedBeat = 0
-    func finish(_ module: Int) { completed.insert(module) }
+    func finish(_ module: Int) { completionEvent = module; completed.insert(module) }
 }
 
 enum Palette {
@@ -64,11 +65,14 @@ struct HomeView: View {
     @StateObject private var state = StudioState()
     @State private var finishingModule: Int? = nil
     @State private var completionStage = 0
+    @State private var openingModule: Int? = nil
+    @State private var openingStage = 0
+    @State private var path: [Int] = []
     private let titles = ["Song Structure", "Chord Progression", "Drum Beats", "Melody"]
     private let subtitles = ["Learn how songs are built", "Play chords on a piano", "Explore popular rhythms", "Find your own sound"]
     private let colors: [Color] = [.purple, .cyan, .orange, .mint]
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             ScrollView {
                 VStack(spacing: 25) {
                     VStack(spacing: 5) {
@@ -77,14 +81,7 @@ struct HomeView: View {
                     }.padding(.top, 28)
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 18) {
                         ForEach(0..<4) { index in
-                            NavigationLink {
-                                switch index {
-                                case 0: StructureView().environmentObject(state)
-                                case 1: ChordLessonView().environmentObject(state)
-                                case 2: DrumLessonView().environmentObject(state)
-                                default: MelodyView().environmentObject(state)
-                                }
-                            } label: {
+                            Button { openModule(index) } label: {
                                 VStack(spacing: 11) {
                                     Vinyl(color: colors[index], spinning: state.completed.contains(index), size: 126)
                                     Text(titles[index]).font(.system(size: 15, weight: .bold))
@@ -97,9 +94,7 @@ struct HomeView: View {
                             }.buttonStyle(.plain)
                         }
                     }
-                    NavigationLink {
-                        SandboxView().environmentObject(state)
-                    } label: {
+                    Button { openModule(4) } label: {
                         VStack(spacing: 12) {
                             Vinyl(color: Palette.gold, spinning: state.completed.contains(4), size: 150)
                             Text("GOLDEN SANDBOX").font(.title3.bold()).tracking(2)
@@ -113,25 +108,72 @@ struct HomeView: View {
             }
             .background(Palette.background).foregroundStyle(Palette.cream)
             .toolbar(.hidden, for: .navigationBar)
+            .navigationDestination(for: Int.self) { index in
+                Group {
+                    switch index {
+                    case 0: StructureView()
+                    case 1: ChordLessonView()
+                    case 2: DrumLessonView()
+                    case 3: MelodyView()
+                    default: SandboxView()
+                    }
+                }.environmentObject(state)
+            }
         }
         .tint(Palette.gold)
         .overlay {
+            if let module = openingModule {
+                OpeningRecordAnimation(color: module == 4 ? Palette.gold : colors[module], stage: openingStage)
+                    .transition(.opacity).allowsHitTesting(true)
+            }
             if let module = finishingModule {
                 RecordPlayerCompletion(color: module == 4 ? Palette.gold : colors[module], stage: completionStage)
-                    .transition(.opacity)
-                    .allowsHitTesting(false)
+                    .transition(.opacity).allowsHitTesting(true)
             }
         }
-        .onChange(of: state.completed) { old, new in
-            guard let module = new.subtracting(old).first else { return }
+        .onChange(of: state.completionEvent) { _, module in
+            guard let module else { return }
             finishingModule = module
             completionStage = 0
-            withAnimation(.easeOut(duration: 0.55)) { completionStage = 1 }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.65) {
-                withAnimation(.spring(response: 0.85, dampingFraction: 0.7)) { completionStage = 2 }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.08) {
+                withAnimation(.easeOut(duration: 0.65)) { completionStage = 1 }
             }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                withAnimation(.easeOut(duration: 0.4)) { finishingModule = nil }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
+                withAnimation(.spring(response: 0.9, dampingFraction: 0.72)) { completionStage = 2 }
+                UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3.2) {
+                withAnimation(.easeOut(duration: 0.35)) { finishingModule = nil }
+                state.completionEvent = nil
+            }
+        }
+    }
+    private func openModule(_ index: Int) {
+        guard openingModule == nil && finishingModule == nil else { return }
+        openingModule = index
+        openingStage = 0
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        withAnimation(.easeInOut(duration: 0.85)) { openingStage = 1 }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.95) {
+            path.append(index)
+            withAnimation(.easeOut(duration: 0.25)) { openingModule = nil }
+        }
+    }
+}
+
+struct OpeningRecordAnimation: View {
+    let color: Color
+    let stage: Int
+    var body: some View {
+        ZStack {
+            Palette.background.opacity(0.97).ignoresSafeArea()
+            VStack(spacing: 26) {
+                Text("NOW LOADING").font(.headline).tracking(4).foregroundStyle(Palette.gold)
+                Vinyl(color: color, spinning: true, size: 220)
+                    .scaleEffect(stage == 0 ? 0.48 : 1.38)
+                    .rotationEffect(.degrees(stage == 0 ? 0 : 110))
+                    .shadow(color: color.opacity(0.55), radius: 35)
+                Text("Dropping the needle…").foregroundStyle(Palette.cream)
             }
         }
     }
@@ -141,26 +183,68 @@ struct HomeView: View {
 struct RecordPlayerCompletion: View {
     let color: Color
     let stage: Int
+
+    // The record and the platter share ONE perspective transform. This prevents
+    // a horizontal-looking record from landing on a face-on record player.
     var body: some View {
-        ZStack {
-            Palette.background.opacity(0.94).ignoresSafeArea()
-            VStack(spacing: 22) {
-                Text("MODULE COMPLETE!").font(.title2.bold()).foregroundStyle(Palette.gold)
-                ZStack {
-                    RoundedRectangle(cornerRadius: 28).fill(Palette.panel)
-                        .frame(width: 310, height: 275)
-                        .overlay(alignment: .bottomTrailing) {
-                            Capsule().fill(Palette.gold).frame(width: 8, height: 115)
-                                .rotationEffect(.degrees(-35)).offset(x: -42, y: -35)
+        GeometryReader { geometry in
+            let deckWidth = min(geometry.size.width - 36, 340.0)
+            ZStack {
+                Palette.background.opacity(0.97).ignoresSafeArea()
+                VStack(spacing: 24) {
+                    Text("MODULE COMPLETE!")
+                        .font(.title2.bold()).foregroundStyle(Palette.gold)
+
+                    ZStack {
+                        // Cast shadow underneath the floating 3D turntable.
+                        Ellipse().fill(.black.opacity(0.48))
+                            .frame(width: deckWidth * 0.94, height: 65)
+                            .blur(radius: 23).offset(y: 140)
+
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 24)
+                                .fill(LinearGradient(colors: [Color(white: 0.31), Palette.panel, Color(white: 0.08)], startPoint: .topLeading, endPoint: .bottomTrailing))
+                                .overlay {
+                                    RoundedRectangle(cornerRadius: 24)
+                                        .stroke(Palette.gold.opacity(0.55), lineWidth: 2)
+                                }
+                                .shadow(color: .black.opacity(0.7), radius: 12, y: 12)
+
+                            Circle().fill(Color(white: 0.055))
+                                .frame(width: deckWidth * 0.77, height: deckWidth * 0.77)
+                                .overlay {
+                                    Circle().stroke(Color.gray.opacity(0.7), lineWidth: 5)
+                                }
+                                .offset(x: -12, y: -8)
+
+                            // The record lifts up, expands, then drops vertically
+                            // onto the platter, all within the same tilted plane.
+                            Vinyl(color: color, spinning: stage == 2, size: deckWidth * 0.66)
+                                .scaleEffect(stage == 0 ? 0.72 : stage == 1 ? 1.27 : 1)
+                                .offset(x: -12, y: stage == 2 ? -8 : -105)
+                                .shadow(color: .black.opacity(0.7), radius: stage == 2 ? 3 : 22, y: stage == 2 ? 2 : 30)
+
+                            // Tonearm sits above the platter, in the SAME plane.
+                            Path { path in
+                                path.move(to: CGPoint(x: deckWidth * 0.84, y: deckWidth * 0.17))
+                                path.addLine(to: CGPoint(x: deckWidth * 0.73, y: deckWidth * 0.30))
+                                path.addLine(to: CGPoint(x: deckWidth * 0.65, y: deckWidth * 0.50))
+                            }
+                            .stroke(Palette.gold, style: StrokeStyle(lineWidth: 7, lineCap: .round, lineJoin: .round))
+                            Circle().fill(Palette.cream)
+                                .frame(width: 16, height: 16)
+                                .position(x: deckWidth * 0.84, y: deckWidth * 0.17)
                         }
-                    Circle().fill(.black.opacity(0.55)).frame(width: 245, height: 245)
-                    Vinyl(color: color, spinning: stage == 2, size: 215)
-                        .rotation3DEffect(.degrees(stage == 2 ? 65 : 0), axis: (x: 1, y: 0, z: 0))
-                        .scaleEffect(stage == 0 ? 0.7 : stage == 1 ? 1.4 : 1.0)
-                        .offset(y: stage == 2 ? 25 : -55)
+                        .frame(width: deckWidth, height: deckWidth)
+                        .rotation3DEffect(.degrees(55), axis: (x: 1, y: 0, z: 0), perspective: 0.65)
+                        .rotation3DEffect(.degrees(-13), axis: (x: 0, y: 1, z: 0), perspective: 0.45)
+                    }
+                    .frame(height: deckWidth * 0.90 + 65)
+
+                    Text(stage == 2 ? "Record loaded. Keep creating!" : "Loading your record…")
+                        .foregroundStyle(Palette.cream)
                 }
-                Text(stage == 2 ? "Record loaded. Keep creating!" : "Loading your record…")
-                    .foregroundStyle(Palette.cream)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
     }
@@ -261,13 +345,15 @@ struct StructureView: View {
                         .id(page)
                         .transition(.opacity.combined(with: .move(edge: .trailing)))
                 }
-                Spacer(minLength: 8)
-                Text(page == lessons.count - 1 ? "Spin clockwise to start the quiz" : "Turn the record clockwise for the next section")
+                Spacer(minLength: 0)
+                Text(page == lessons.count - 1 ? "Spin clockwise to start the quiz" : "Spin clockwise to turn the page")
                     .font(.caption).foregroundStyle(.gray).multilineTextAlignment(.center)
-                Vinyl(color: .purple, size: 190)
+
+                // Only the TOP HALF of the record is visible, emerging from the
+                // bottom edge. The entire disc retains its circular drag gesture.
+                Vinyl(color: .purple, size: 270)
                     .rotationEffect(.degrees(rotation))
-                    .scaleEffect(introScale)
-                    .modifier(CircularVinylGesture(diameter: 190) { direction in
+                    .modifier(CircularVinylGesture(diameter: 270) { direction in
                         withAnimation(.easeOut(duration: 0.25)) { rotation += Double(direction) * 65 }
                         UISelectionFeedbackGenerator().selectionChanged()
                         guard direction > 0 else { return }
@@ -275,10 +361,14 @@ struct StructureView: View {
                             withAnimation(.easeInOut(duration: 0.3)) { page += 1 }
                         } else { withAnimation { quiz = true } }
                     })
-                    .padding(.bottom, 10)
+                    .scaleEffect(introScale)
+                    .frame(height: 135, alignment: .top)
+                    .clipped()
+                    .frame(maxWidth: .infinity)
+                    .accessibilityLabel("Half vinyl record. Rotate clockwise for next lesson")
             }
         }
-        .padding(20).modifier(LessonBackground()).navigationTitle("Module 1")
+        .padding(.horizontal, 20).padding(.top, 20).modifier(LessonBackground()).navigationTitle("Module 1")
         .onAppear {
             showSpinTip = !quiz && page == 0
             withAnimation(.spring(response: 0.7, dampingFraction: 0.65)) { introScale = 1 }
@@ -331,7 +421,7 @@ struct StructureQuiz: View {
             Spacer()
             PrimaryAction(title: revealed && selected == questions[question].2 ? (question == questions.count - 1 ? "Finish Module" : "Next Question") : "Check Answer") {
                 if revealed && selected == questions[question].2 {
-                    if question == questions.count - 1 { state.finish(0); dismiss() }
+                    if question == questions.count - 1 { state.finish(0); DispatchQueue.main.asyncAfter(deadline: .now() + 2.7) { dismiss() } }
                     else { question += 1; revealed = false; feedback = ""; selected = 0 }
                 } else {
                     revealed = true
@@ -523,7 +613,7 @@ struct PianoView: View {
                     }
                 }
                 PrimaryAction(title: "▶ Play All Chords") { playAll() }
-                PrimaryAction(title: "Done — Complete Module") { audio.stop(); state.finish(1); dismiss() }
+                PrimaryAction(title: "Done — Complete Module") { audio.stop(); state.finish(1); DispatchQueue.main.asyncAfter(deadline: .now() + 2.7) { dismiss() } }
             }.padding()
         }.modifier(LessonBackground()).onDisappear { audio.stop() }
     }
@@ -597,7 +687,7 @@ struct DrumPadsView: View {
             }
             Button("■ Stop Sound") { audio.stop() }.buttonStyle(.bordered)
             Spacer()
-            PrimaryAction(title: "Done — Complete Module") { audio.stop(); state.finish(2); dismiss() }
+            PrimaryAction(title: "Done — Complete Module") { audio.stop(); state.finish(2); DispatchQueue.main.asyncAfter(deadline: .now() + 2.7) { dismiss() } }
         }.padding() }.modifier(LessonBackground()).onDisappear { audio.stop() }
     }
 }
@@ -668,7 +758,7 @@ struct MelodyView: View {
                     Button("▶ Play My Recording") { recorder.play() }.buttonStyle(.bordered)
                 }
                 if !recorder.message.isEmpty { Text(recorder.message).font(.caption).foregroundStyle(.gray) }
-                PrimaryAction(title: "Done — Complete Module") { if recorder.isRecording { recorder.toggle() }; state.finish(3); dismiss() }
+                PrimaryAction(title: "Done — Complete Module") { if recorder.isRecording { recorder.toggle() }; state.finish(3); DispatchQueue.main.asyncAfter(deadline: .now() + 2.7) { dismiss() } }
             }.padding()
         }.modifier(LessonBackground()).navigationTitle("Module 4")
     }
