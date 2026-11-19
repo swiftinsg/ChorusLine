@@ -97,7 +97,7 @@ struct HomeView: View {
                     Button { openModule(4) } label: {
                         VStack(spacing: 12) {
                             Vinyl(color: Palette.gold, spinning: state.completed.contains(4), size: 150)
-                            Text("GOLDEN SANDBOX").font(.title3.bold()).tracking(2)
+                            Text("SANDBOX").font(.title3.bold()).tracking(2)
                             Text("Mix chords and drum beats into your song")
                                 .font(.subheadline).foregroundStyle(.white.opacity(0.65))
                         }.frame(maxWidth: .infinity).padding(23)
