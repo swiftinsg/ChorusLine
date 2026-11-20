@@ -35,6 +35,27 @@ final class MusicEngine: ObservableObject {
         }
         player.scheduleBuffer(buffer, completionHandler: nil)
     }
+
+    /// Plays a single synthesized tone. Longer durations produce sustained notes.
+    func playTone(_ midi: Int, duration: Double = 0.4) {
+        guard running else { return }
+        let sampleRate = 44100.0
+        let count = AVAudioFrameCount(duration * sampleRate)
+        guard let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: count) else { return }
+        buffer.frameLength = count
+        guard let left = buffer.floatChannelData?[0], let right = buffer.floatChannelData?[1] else { return }
+        for i in 0..<Int(count) {
+            let t = Double(i) / sampleRate
+            let attack = min(1, t / 0.01)
+            let release = min(1, (duration - t) / 0.08)
+            let envelope = max(0, min(attack, release)) * exp(-t * 1.15)
+            let frequency = 440.0 * pow(2.0, Double(midi - 69) / 12.0)
+            let wave = sin(2 * .pi * frequency * t) + 0.25 * sin(4 * .pi * frequency * t)
+            let value = Float(wave * envelope * 0.22)
+            left[i] = value; right[i] = value
+        }
+        player.scheduleBuffer(buffer, completionHandler: nil)
+    }
     /// Plays a sequence of chords, one per beat, at the requested tempo.
     func playProgression(_ chords: [[Int]], bpm: Double = 100) {
         guard running, !chords.isEmpty else { return }

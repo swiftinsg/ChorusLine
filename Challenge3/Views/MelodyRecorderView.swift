@@ -1,10 +1,10 @@
 import SwiftUI
 
-/// Records and plays back the learner's hummed melody.
+/// Entry point for the melody drawing experience.
 struct MelodyRecorderView: View {
     @EnvironmentObject var state: StudioState
     @Environment(\.dismiss) private var dismiss
-    @StateObject private var recorder = VoiceRecorder()
+
     var body: some View {
         VStack(spacing: 22) {
             Text("MELODY")
@@ -12,24 +12,24 @@ struct MelodyRecorderView: View {
                 .tracking(1.5)
                 .foregroundStyle(Palette.accent)
             Vinyl(color: Palette.accent, size: 190)
-            Text("Hum a tune and capture it before it slips away.")
+            Text("Turn your drawings into melody. Long strokes become sustained notes, and short strokes become quick notes.")
                 .foregroundStyle(.gray)
                 .multilineTextAlignment(.center)
-            Button {
-                recorder.toggle()
+
+            NavigationLink {
+                MelodyDrawView().environmentObject(state)
             } label: {
-                Label(recorder.isRecording ? "Stop Recording" : "Record Your Hum", systemImage: recorder.isRecording ? "stop.circle.fill" : "mic.circle.fill")
+                Label("Open Melody Canvas", systemImage: "paintbrush.pointed.fill")
                     .frame(maxWidth: .infinity).padding(15)
-                    .background(recorder.isRecording ? Color.red : Palette.accent, in: RoundedRectangle(cornerRadius: 14))
+                    .background(Palette.accent, in: RoundedRectangle(cornerRadius: 14))
                     .foregroundStyle(Palette.background)
             }
-            if recorder.hasRecording {
-                Button("▶ Play My Recording") { recorder.play() }.buttonStyle(.bordered)
-            }
-            if !recorder.message.isEmpty { Text(recorder.message).font(.caption).foregroundStyle(.gray) }
+
+            Text("For the best experience, hold your phone horizontally on the next page.")
+                .font(.caption).foregroundStyle(.gray).multilineTextAlignment(.center)
+
             Spacer()
             PrimaryAction(title: "Done — Complete Module") {
-                if recorder.isRecording { recorder.toggle() }
                 state.finish(3)
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2.7) { dismiss() }
             }
