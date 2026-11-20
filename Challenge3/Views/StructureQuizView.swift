@@ -36,10 +36,6 @@ struct StructureQuiz: View {
                     .animation(.spring(response: 0.3, dampingFraction: 0.55), value: recordPulse)
                     .shadow(color: showCorrect ? Color.green.opacity(0.75) : .clear, radius: 28)
 
-                ForEach(flyingNotes) { note in
-                    FlyingMusicNote(particle: note)
-                }
-
                 // Keep the answer inside the record's centre label so it never
                 // bleeds out over the grooves.
                 VStack(spacing: 4) {
@@ -54,6 +50,10 @@ struct StructureQuiz: View {
                 }
                 .foregroundStyle(.white)
                 .allowsHitTesting(false)
+
+                ForEach(flyingNotes) { note in
+                    FlyingMusicNote(particle: note)
+                }
             }
             .modifier(CircularVinylGesture(diameter: 245) { direction in
                 guard !isAdvancing else { return }
@@ -125,18 +125,21 @@ struct StructureQuiz: View {
         }
     }
 
-    /// Spawns a few music notes that fly outward as the vinyl is spun.
+    /// Spawns music notes that fly outward as the vinyl is spun.
     private func spawnFlyingNotes() {
-        let count = Int.random(in: 1...2)
+        let count = Int.random(in: 2...4)
         for _ in 0..<count {
             let particle = NoteParticle(
                 angle: Double.random(in: 0...(2 * .pi)),
-                distance: CGFloat.random(in: 80...150),
+                startRadius: CGFloat.random(in: 88...118),
+                distance: CGFloat.random(in: 90...170),
+                size: CGFloat.random(in: 26...36),
+                spin: Double.random(in: -70...70),
                 symbol: "music.note"
             )
             flyingNotes.append(particle)
             let id = particle.id
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.95) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.15) {
                 flyingNotes.removeAll { $0.id == id }
             }
         }
@@ -146,7 +149,10 @@ struct StructureQuiz: View {
 private struct NoteParticle: Identifiable {
     let id = UUID()
     let angle: Double
+    let startRadius: CGFloat
     let distance: CGFloat
+    let size: CGFloat
+    let spin: Double
     let symbol: String
 }
 
@@ -156,17 +162,19 @@ private struct FlyingMusicNote: View {
 
     var body: some View {
         Image(systemName: particle.symbol)
-            .font(.system(size: 18, weight: .bold))
-            .foregroundStyle(Palette.accent.opacity(0.95))
+            .font(.system(size: particle.size, weight: .black))
+            .foregroundStyle(.white)
+            .shadow(color: Palette.accent, radius: 8)
+            .shadow(color: .black.opacity(0.35), radius: 2, x: 0, y: 1)
             .offset(
-                x: travel ? cos(particle.angle) * particle.distance : 0,
-                y: travel ? sin(particle.angle) * particle.distance - 24 : 0
+                x: cos(particle.angle) * (particle.startRadius + (travel ? particle.distance : 0)),
+                y: sin(particle.angle) * (particle.startRadius + (travel ? particle.distance : 0)) - (travel ? 18 : 0)
             )
             .opacity(travel ? 0 : 1)
-            .scaleEffect(travel ? 1.15 : 0.35)
-            .rotationEffect(.degrees(travel ? particle.angle * 18 : 0))
+            .scaleEffect(travel ? 1.25 : 0.75)
+            .rotationEffect(.degrees(travel ? particle.spin : 0))
             .onAppear {
-                withAnimation(.easeOut(duration: 0.85)) {
+                withAnimation(.easeOut(duration: 1.0)) {
                     travel = true
                 }
             }
