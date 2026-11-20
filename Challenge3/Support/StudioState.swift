@@ -11,5 +11,8 @@ final class StudioState: ObservableObject {
     @Published var completionEvent: Int? = nil
     @Published var selectedProgression = 0
     @Published var selectedBeat = 0
-    func finish(_ module: Int) { completionEvent = module; completed.insert(module) }
+    func finish(_ module: Int, animate: Bool = true) {
+        if animate { completionEvent = module }
+        completed.insert(module)
+    }
 }

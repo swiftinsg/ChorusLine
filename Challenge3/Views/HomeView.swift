@@ -60,6 +60,22 @@ struct HomeView: View {
                         .background(Palette.gold.opacity(0.12), in: RoundedRectangle(cornerRadius: 22))
                         .overlay(RoundedRectangle(cornerRadius: 22).stroke(Palette.gold.opacity(0.35)))
                     }.buttonStyle(.plain)
+                    Button { openModule(5) } label: {
+                        HStack(spacing: compact ? 12 : 16) {
+                            Image(systemName: "music.note.list")
+                                .font(.system(size: compact ? 18 : 20, weight: .semibold))
+                                .foregroundStyle(Palette.accent)
+                            Text("Saved Songs")
+                                .font(.system(size: compact ? 17 : 19, weight: .bold))
+                            Spacer(minLength: 0)
+                            Image(systemName: "chevron.right")
+                                .font(.caption.bold())
+                                .foregroundStyle(.gray)
+                        }
+                        .padding(compact ? 12 : 14)
+                        .frame(maxWidth: .infinity)
+                        .background(Palette.panel, in: RoundedRectangle(cornerRadius: 18))
+                    }.buttonStyle(.plain)
                     Spacer(minLength: 0)
                 }
                 .padding(.horizontal, 18)
@@ -73,6 +89,8 @@ struct HomeView: View {
                     case 1: ChordLessonView()
                     case 2: DrumLessonView()
                     case 3: MelodyView()
+                    case 4: SandboxView()
+                    case 5: SongLibraryView()
                     default: SandboxView()
                     }
                 }.environmentObject(state)
@@ -81,12 +99,20 @@ struct HomeView: View {
         .tint(Palette.accent)
         .overlay {
             if let module = openingModule {
-                OpeningRecordAnimation(color: module == 4 ? Palette.gold : colors[module], stage: openingStage, accent: module == 4 ? Palette.gold : Palette.accent)
-                    .transition(.opacity).allowsHitTesting(true)
+                OpeningRecordAnimation(
+                    color: module == 4 ? Palette.gold : (colors.indices.contains(module) ? colors[module] : Palette.accent),
+                    stage: openingStage,
+                    accent: module == 4 ? Palette.gold : Palette.accent
+                )
+                .transition(.opacity).allowsHitTesting(true)
             }
             if let module = finishingModule {
-                RecordPlayerCompletion(color: module == 4 ? Palette.gold : colors[module], stage: completionStage, accent: module == 4 ? Palette.gold : Palette.accent)
-                    .transition(.opacity).allowsHitTesting(true)
+                RecordPlayerCompletion(
+                    color: module == 4 ? Palette.gold : (colors.indices.contains(module) ? colors[module] : Palette.accent),
+                    stage: completionStage,
+                    accent: module == 4 ? Palette.gold : Palette.accent
+                )
+                .transition(.opacity).allowsHitTesting(true)
             }
         }
         .onChange(of: state.completionEvent) { _, module in

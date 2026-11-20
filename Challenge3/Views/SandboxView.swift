@@ -16,9 +16,7 @@ struct SandboxView: View {
                 Text("Build your first musical idea with chords and rhythm.").foregroundStyle(.gray)
                 TextField("Song title", text: $songName).textFieldStyle(.roundedBorder).foregroundStyle(.black)
                 Text("1. CHOOSE YOUR CHORDS").font(.headline)
-                Picker("Chord Progression", selection: $chosenProgression) {
-                    ForEach(progressions) { Text("\( $0.name ): \($0.chords.joined(separator: "–"))").tag($0.id) }
-                }.tint(Palette.gold)
+                progressionMenu
                 HStack(spacing: 8) {
                     ForEach(0..<4, id: \.self) { i in
                         Button(progressions[chosenProgression].chords[i]) {
@@ -42,7 +40,6 @@ struct SandboxView: View {
                             .background(chosenBeat == beat.id ? Palette.gold.opacity(0.45) : Palette.panel, in: RoundedRectangle(cornerRadius: 12))
                     }
                 }
-                Button("▶ Play Beat") { audio.stop(); audio.playBeat(beats[chosenBeat].steps) }.buttonStyle(.bordered)
                 Button("■ Stop") { audio.stop() }.buttonStyle(.bordered)
                 Divider()
                 Text("3. SAVE YOUR SONG IDEA").font(.headline)
@@ -51,7 +48,7 @@ struct SandboxView: View {
                 PrimaryAction(title: "Save Song Idea", tint: Palette.gold) {
                     let idea = SongIdea(title: songName, progression: chosenProgression, beat: chosenBeat, createdAt: Date())
                     SongLibrary.save(idea)
-                    state.finish(4)
+                    state.finish(4, animate: false)
                     saved = true
                 }
                 if saved {
@@ -66,5 +63,30 @@ struct SandboxView: View {
         }.modifier(LessonBackground()).navigationTitle("Sandbox")
             .onAppear { chosenProgression = state.selectedProgression; chosenBeat = state.selectedBeat }
             .onDisappear { audio.stop() }
+    }
+
+    /// Lists every available progression, matching the chord progression module menu.
+    private var progressionMenu: some View {
+        Menu {
+            ForEach(progressions) { progression in
+                Button {
+                    chosenProgression = progression.id
+                    state.selectedProgression = chosenProgression
+                } label: {
+                    if chosenProgression == progression.id {
+                        Label("\(progression.name) · \(progression.chords.joined(separator: "–"))", systemImage: "checkmark")
+                    } else {
+                        Text("\(progression.name) · \(progression.chords.joined(separator: "–"))")
+                    }
+                }
+            }
+        } label: {
+            Label("Progressions", systemImage: "music.note.list")
+                .font(.subheadline.bold())
+                .padding(.horizontal, 12).padding(.vertical, 8)
+                .background(Palette.panel, in: Capsule())
+                .overlay(Capsule().stroke(Palette.accent.opacity(0.35)))
+        }
+        .tint(Palette.cream)
     }
 }

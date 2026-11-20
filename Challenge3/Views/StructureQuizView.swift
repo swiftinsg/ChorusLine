@@ -13,6 +13,7 @@ struct StructureQuiz: View {
     @State private var recordPulse = false
     @State private var showCorrect = false
     @State private var isAdvancing = false
+    @State private var flyingNotes: [NoteParticle] = []
     private let questions: [(String, [String], Int)] = [
         ("Which section usually contains the main repeated hook?", ["Verse", "Chorus", "Bridge", "Outro"], 1),
         ("What does a pre-chorus typically do?", ["End the song", "Introduce credits", "Build into the chorus", "Replace the beat"], 2),
@@ -35,6 +36,10 @@ struct StructureQuiz: View {
                     .animation(.spring(response: 0.3, dampingFraction: 0.55), value: recordPulse)
                     .shadow(color: showCorrect ? Color.green.opacity(0.75) : .clear, radius: 28)
 
+                ForEach(flyingNotes) { note in
+                    FlyingMusicNote(particle: note)
+                }
+
                 // Keep the answer inside the record's centre label so it never
                 // bleeds out over the grooves.
                 VStack(spacing: 4) {
@@ -54,6 +59,7 @@ struct StructureQuiz: View {
                 guard !isAdvancing else { return }
                 withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) { rotation += Double(direction) * 65 }
                 selected = (selected + direction + 4) % 4
+                spawnFlyingNotes()
                 UISelectionFeedbackGenerator().selectionChanged()
                 revealed = false
                 withAnimation(.easeOut(duration: 0.15)) { feedback = "" }
@@ -117,5 +123,53 @@ struct StructureQuiz: View {
                 isAdvancing = false
             }
         }
+    }
+
+    /// Spawns a few music notes that fly outward as the vinyl is spun.
+    private func spawnFlyingNotes() {
+        let count = Int.random(in: 1...2)
+        for _ in 0..<count {
+            let particle = NoteParticle(
+                angle: Double.random(in: 0...(2 * .pi)),
+                distance: CGFloat.random(in: 80...150),
+                symbol: "music.note"
+            )
+            flyingNotes.append(particle)
+            let id = particle.id
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.95) {
+                flyingNotes.removeAll { $0.id == id }
+            }
+        }
+    }
+}
+
+private struct NoteParticle: Identifiable {
+    let id = UUID()
+    let angle: Double
+    let distance: CGFloat
+    let symbol: String
+}
+
+private struct FlyingMusicNote: View {
+    let particle: NoteParticle
+    @State private var travel = false
+
+    var body: some View {
+        Image(systemName: particle.symbol)
+            .font(.system(size: 18, weight: .bold))
+            .foregroundStyle(Palette.accent.opacity(0.95))
+            .offset(
+                x: travel ? cos(particle.angle) * particle.distance : 0,
+                y: travel ? sin(particle.angle) * particle.distance - 24 : 0
+            )
+            .opacity(travel ? 0 : 1)
+            .scaleEffect(travel ? 1.15 : 0.35)
+            .rotationEffect(.degrees(travel ? particle.angle * 18 : 0))
+            .onAppear {
+                withAnimation(.easeOut(duration: 0.85)) {
+                    travel = true
+                }
+            }
+            .allowsHitTesting(false)
     }
 }
