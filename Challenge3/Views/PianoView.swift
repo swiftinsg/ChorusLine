@@ -17,7 +17,7 @@ struct PianoView: View {
             HStack(alignment: .top, spacing: 12) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("CHORD PIANO").font(.title.bold())
-                    Text("Pick a progression, set a tempo, then press a key to hear it in that key.")
+                    Text("Pick a progression, tap a chord column to hear it, or press a piano key to transpose the progression.")
                         .font(.caption).foregroundStyle(.gray)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -28,15 +28,15 @@ struct PianoView: View {
             VStack(spacing: 3) {
                 Text(progressions[chosen].name)
                     .font(.headline).foregroundStyle(Palette.accent)
-                Text(transposedChordLabels())
-                    .font(.subheadline)
                 Text(progressions[chosen].mood)
                     .font(.caption).foregroundStyle(.gray)
             }
             .frame(maxWidth: .infinity)
 
-            PianoKeyboard { midi in play(root: midi) }
-                .frame(height: 200)
+            chordColumnsView
+
+            PianoKeyboard { midi in transpose(to: midi) }
+                .frame(height: 180)
 
             HStack {
                 Text("Playing in \(lastKey)")
@@ -75,6 +75,45 @@ struct PianoView: View {
         .onDisappear { audio.stop() }
     }
 
+    /// Shows each chord in the progression as a tappable column of its notes.
+    private var chordColumnsView: some View {
+        HStack(alignment: .top, spacing: 8) {
+            ForEach(Array(currentChordNotes().enumerated()), id: \.offset) { index, notes in
+                Button {
+                    audio.stop()
+                    audio.playChord(notes)
+                    UISelectionFeedbackGenerator().selectionChanged()
+                } label: {
+                    VStack(spacing: 6) {
+                        Text(chordLabel(for: notes))
+                            .font(.headline.bold())
+                            .foregroundStyle(Palette.cream)
+                        Text("Chord \(index + 1)")
+                            .font(.caption2)
+                            .foregroundStyle(.gray)
+                        VStack(spacing: 4) {
+                            ForEach(Array(notes.enumerated()), id: \.offset) { _, midi in
+                                Text(noteName(for: midi))
+                                    .font(.caption.bold())
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 5)
+                                    .background(Palette.accent.opacity(0.22), in: RoundedRectangle(cornerRadius: 6))
+                                    .foregroundStyle(Palette.cream)
+                            }
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .padding(.horizontal, 6)
+                    .background(Palette.panel, in: RoundedRectangle(cornerRadius: 12))
+                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(Palette.accent.opacity(0.35), lineWidth: 1))
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Play chord \(chordLabel(for: notes))")
+            }
+        }
+    }
+
     /// Lists every available progression in a compact top-right menu.
     private var progressionMenu: some View {
         Menu {
@@ -100,20 +139,16 @@ struct PianoView: View {
         .tint(Palette.cream)
     }
 
-    /// Plays the chosen progression transposed so it is rooted on `root`.
-    private func play(root: Int) {
-        audio.stop()
+    /// Transposes the chosen progression so it is rooted on `root` without playing it.
+    private func transpose(to root: Int) {
         transposeOffset = root - 60
-        audio.playProgression(progressions[chosen].notes.map { notes in notes.map { $0 + transposeOffset } }, bpm: bpm)
         lastKey = Self.keyNames[((root - 60) % 12 + 12) % 12]
         UISelectionFeedbackGenerator().selectionChanged()
     }
 
-    /// Chord labels for the selected progression, transposed to the last pressed key.
-    private func transposedChordLabels() -> String {
-        progressions[chosen].notes
-            .map { chordLabel(for: $0.map { $0 + transposeOffset }) }
-            .joined(separator: "  –  ")
+    /// The currently selected progression transposed to the chosen key.
+    private func currentChordNotes() -> [[Int]] {
+        progressions[chosen].notes.map { notes in notes.map { $0 + transposeOffset } }
     }
 
     /// Names a chord from its MIDI notes (e.g. major "C", minor "Am").
@@ -124,5 +159,10 @@ struct PianoView: View {
         let intervals = Set(ordered.map { $0 - root })
         let quality = intervals.contains(3) ? "m" : ""
         return rootName + quality
+    }
+
+    /// Returns the note name for a MIDI note number.
+    private func noteName(for midi: Int) -> String {
+        Self.keyNames[((midi % 12) + 12) % 12]
     }
 }

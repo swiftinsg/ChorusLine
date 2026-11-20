@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// A two-octave piano keyboard. Pressing a key reports its MIDI note so the
-/// caller can play a chord progression rooted on that key.
+/// A one-octave piano keyboard. Pressing a key reports its MIDI note so the
+/// caller can respond (for example, to transpose a chord progression).
 struct PianoKeyboard: View {
     let onNote: (Int) -> Void
 
@@ -15,20 +15,13 @@ struct PianoKeyboard: View {
         .init(id: 60, name: "C", whiteOffset: 0), .init(id: 62, name: "D", whiteOffset: 1),
         .init(id: 64, name: "E", whiteOffset: 2), .init(id: 65, name: "F", whiteOffset: 3),
         .init(id: 67, name: "G", whiteOffset: 4), .init(id: 69, name: "A", whiteOffset: 5),
-        .init(id: 71, name: "B", whiteOffset: 6),
-        .init(id: 72, name: "C", whiteOffset: 7), .init(id: 74, name: "D", whiteOffset: 8),
-        .init(id: 76, name: "E", whiteOffset: 9), .init(id: 77, name: "F", whiteOffset: 10),
-        .init(id: 79, name: "G", whiteOffset: 11), .init(id: 81, name: "A", whiteOffset: 12),
-        .init(id: 83, name: "B", whiteOffset: 13)
+        .init(id: 71, name: "B", whiteOffset: 6)
     ]
     // whiteOffset is the number of white keys to the left of the black key.
     private let blackKeys: [KeySpec] = [
         .init(id: 61, name: nil, whiteOffset: 1), .init(id: 63, name: nil, whiteOffset: 2),
         .init(id: 66, name: nil, whiteOffset: 4), .init(id: 68, name: nil, whiteOffset: 5),
-        .init(id: 70, name: nil, whiteOffset: 6),
-        .init(id: 73, name: nil, whiteOffset: 8), .init(id: 75, name: nil, whiteOffset: 9),
-        .init(id: 78, name: nil, whiteOffset: 11), .init(id: 80, name: nil, whiteOffset: 12),
-        .init(id: 82, name: nil, whiteOffset: 13)
+        .init(id: 70, name: nil, whiteOffset: 6)
     ]
 
     var body: some View {
