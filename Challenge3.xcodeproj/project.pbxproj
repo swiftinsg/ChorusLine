@@ -256,7 +256,7 @@
 				DEVELOPMENT_TEAM = XL5JK4F896;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "Chorus Line";
+				INFOPLIST_KEY_CFBundleDisplayName = ChorusLine;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Chorus Line records the melody you hum so you can listen back to your ideas.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -295,7 +295,7 @@
 				DEVELOPMENT_TEAM = XL5JK4F896;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "Chorus Line";
+				INFOPLIST_KEY_CFBundleDisplayName = ChorusLine;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Chorus Line records the melody you hum so you can listen back to your ideas.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
