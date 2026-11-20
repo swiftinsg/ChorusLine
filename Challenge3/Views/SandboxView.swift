@@ -1,5 +1,7 @@
 import SwiftUI
+#if canImport(UIKit)
 import UIKit
+#endif
 
 /// Combines a chord progression and drum beat into a saved song idea.
 struct SandboxView: View {
@@ -19,8 +21,8 @@ struct SandboxView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 Text("GOLDEN SANDBOX").font(.title.bold()).foregroundStyle(Palette.gold)
-                Text("Build your first musical idea with chords and rhythm.").foregroundStyle(.gray)
-                TextField("Song title", text: $songName).textFieldStyle(.roundedBorder).foregroundStyle(.black)
+                Text("Build your first musical idea with chords and rhythm.").foregroundStyle(Palette.muted)
+                TextField("Song title", text: $songName).textFieldStyle(.roundedBorder)
 
                 Text("1. CHOOSE YOUR CHORDS").font(.headline)
                 progressionMenu
@@ -29,27 +31,27 @@ struct SandboxView: View {
                     Text(progressions[chosenProgression].name)
                         .font(.headline).foregroundStyle(Palette.accent)
                     Text(progressions[chosenProgression].mood)
-                        .font(.caption).foregroundStyle(.gray)
+                        .font(.caption).foregroundStyle(Palette.muted)
                 }
                 .frame(maxWidth: .infinity)
 
                 chordColumnsView
 
                 PianoKeyboard { midi in transpose(to: midi) }
-                    .frame(height: 180)
+                    .frame(minHeight: 140, idealHeight: 180, maxHeight: 220)
 
                 HStack {
                     Text("Playing in \(lastKey)")
                         .font(.caption.bold()).foregroundStyle(Palette.accent)
                     Spacer()
                     Text("Tap a key to set your song's key")
-                        .font(.caption).foregroundStyle(.gray)
+                        .font(.caption).foregroundStyle(Palette.muted)
                 }
 
                 HStack(spacing: 12) {
                     Label("Tempo", systemImage: "metronome")
                         .font(.caption.bold())
-                        .foregroundStyle(.gray)
+                        .foregroundStyle(Palette.muted)
                     Slider(value: $bpm, in: 60...180, step: 5)
                         .tint(Palette.accent)
                         .accessibilityLabel("Tempo")
@@ -62,7 +64,7 @@ struct SandboxView: View {
 
                 Divider()
                 Text("2. CHOOSE YOUR DRUM BEAT").font(.headline)
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 120), spacing: 10)], spacing: 10) {
                     ForEach(beats) { beat in
                         Button(beat.name) {
                             chosenBeat = beat.id
@@ -75,7 +77,7 @@ struct SandboxView: View {
                 Divider()
                 Text("3. SAVE YOUR SONG IDEA").font(.headline)
                 Text("Your current chord progression, key, tempo and drum choice will be saved in this song idea. You can add your recorded melody from Module 4 separately.")
-                    .font(.subheadline).foregroundStyle(.gray)
+                    .font(.subheadline).foregroundStyle(Palette.muted)
                 PrimaryAction(title: "Save Song Idea", tint: Palette.gold) {
                     let idea = SongIdea(
                         title: songName,
@@ -109,12 +111,15 @@ struct SandboxView: View {
 
     /// Shows each chord in the progression as a tappable column of its notes.
     private var chordColumnsView: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
         HStack(alignment: .top, spacing: 8) {
             ForEach(Array(currentChordNotes().enumerated()), id: \.offset) { index, notes in
                 Button {
                     audio.stop()
                     audio.playChord(notes)
+                    #if os(iOS)
                     UISelectionFeedbackGenerator().selectionChanged()
+                    #endif
                 } label: {
                     VStack(spacing: 6) {
                         Text(chordLabel(for: notes))
@@ -122,7 +127,7 @@ struct SandboxView: View {
                             .foregroundStyle(Palette.cream)
                         Text("Chord \(index + 1)")
                             .font(.caption2)
-                            .foregroundStyle(.gray)
+                            .foregroundStyle(Palette.muted)
                         VStack(spacing: 4) {
                             ForEach(Array(notes.enumerated()), id: \.offset) { _, midi in
                                 Text(noteName(for: midi))
@@ -143,6 +148,7 @@ struct SandboxView: View {
                 .buttonStyle(.plain)
                 .accessibilityLabel("Play chord \(chordLabel(for: notes))")
             }
+        }
         }
     }
 
@@ -177,7 +183,9 @@ struct SandboxView: View {
         transposeOffset = root - 60
         lastKey = Self.keyNames[((root - 60) % 12 + 12) % 12]
         saved = false
+        #if os(iOS)
         UISelectionFeedbackGenerator().selectionChanged()
+        #endif
     }
 
     /// The currently selected progression transposed to the chosen key.

@@ -6,7 +6,11 @@ struct SongLibraryView: View {
     @State private var songs = SongLibrary.load()
     var body: some View {
         List {
-            if songs.isEmpty { Text("No song ideas saved yet.") }
+            if songs.isEmpty {
+                Text("No song ideas saved yet.")
+                    .foregroundStyle(Palette.muted)
+                    .listRowBackground(Palette.panel)
+            }
             ForEach(songs) { song in
                 VStack(alignment: .leading, spacing: 6) {
                     Text(song.title).font(.headline)
@@ -17,12 +21,18 @@ struct SongLibraryView: View {
                         play(song)
                     }.buttonStyle(.bordered)
                 }
+                .listRowBackground(Palette.panel)
             }
             .onDelete { offsets in
                 songs.remove(atOffsets: offsets)
                 if let data = try? JSONEncoder().encode(songs) { UserDefaults.standard.set(data, forKey: SongLibrary.key) }
             }
-        }.navigationTitle("My Songs").onDisappear { audio.stop() }
+        }
+        .scrollContentBackground(.hidden)
+        .background(Palette.background.ignoresSafeArea())
+        .foregroundStyle(Palette.cream)
+        .tint(Palette.accent)
+        .navigationTitle("My Songs").onDisappear { audio.stop() }
     }
 
     private func play(_ song: SongIdea) {

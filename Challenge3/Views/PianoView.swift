@@ -1,5 +1,7 @@
 import SwiftUI
+#if canImport(UIKit)
 import UIKit
+#endif
 
 /// Lets the learner play any chord progression in any key on a piano.
 struct PianoView: View {
@@ -13,12 +15,13 @@ struct PianoView: View {
     private static let keyNames = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"]
 
     var body: some View {
+        ScrollView {
         VStack(spacing: 16) {
             HStack(alignment: .top, spacing: 12) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("CHORD PIANO").font(.title.bold())
                     Text("Pick a progression, tap a chord column to hear it, or press a piano key to transpose the progression.")
-                        .font(.caption).foregroundStyle(.gray)
+                        .font(.caption).foregroundStyle(Palette.muted)
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 Spacer(minLength: 8)
@@ -29,27 +32,27 @@ struct PianoView: View {
                 Text(progressions[chosen].name)
                     .font(.headline).foregroundStyle(Palette.accent)
                 Text(progressions[chosen].mood)
-                    .font(.caption).foregroundStyle(.gray)
+                    .font(.caption).foregroundStyle(Palette.muted)
             }
             .frame(maxWidth: .infinity)
 
             chordColumnsView
 
             PianoKeyboard { midi in transpose(to: midi) }
-                .frame(height: 180)
+                .frame(minHeight: 140, idealHeight: 180, maxHeight: 220)
 
             HStack {
                 Text("Playing in \(lastKey)")
                     .font(.caption.bold()).foregroundStyle(Palette.accent)
                 Spacer()
                 Text("Tap a key to transpose")
-                    .font(.caption).foregroundStyle(.gray)
+                    .font(.caption).foregroundStyle(Palette.muted)
             }
 
             HStack(spacing: 12) {
                 Label("Tempo", systemImage: "metronome")
                     .font(.caption.bold())
-                    .foregroundStyle(.gray)
+                    .foregroundStyle(Palette.muted)
                 Slider(value: $bpm, in: 60...180, step: 5)
                     .tint(Palette.accent)
                     .accessibilityLabel("Tempo")
@@ -69,6 +72,7 @@ struct PianoView: View {
             }
         }
         .padding(20)
+        }
         .modifier(LessonBackground())
         .navigationTitle("")
         .onAppear { chosen = state.selectedProgression }
@@ -77,12 +81,15 @@ struct PianoView: View {
 
     /// Shows each chord in the progression as a tappable column of its notes.
     private var chordColumnsView: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
         HStack(alignment: .top, spacing: 8) {
             ForEach(Array(currentChordNotes().enumerated()), id: \.offset) { index, notes in
                 Button {
                     audio.stop()
                     audio.playChord(notes)
+                    #if os(iOS)
                     UISelectionFeedbackGenerator().selectionChanged()
+                    #endif
                 } label: {
                     VStack(spacing: 6) {
                         Text(chordLabel(for: notes))
@@ -90,7 +97,7 @@ struct PianoView: View {
                             .foregroundStyle(Palette.cream)
                         Text("Chord \(index + 1)")
                             .font(.caption2)
-                            .foregroundStyle(.gray)
+                            .foregroundStyle(Palette.muted)
                         VStack(spacing: 4) {
                             ForEach(Array(notes.enumerated()), id: \.offset) { _, midi in
                                 Text(noteName(for: midi))
@@ -111,6 +118,7 @@ struct PianoView: View {
                 .buttonStyle(.plain)
                 .accessibilityLabel("Play chord \(chordLabel(for: notes))")
             }
+        }
         }
     }
 
@@ -143,7 +151,9 @@ struct PianoView: View {
     private func transpose(to root: Int) {
         transposeOffset = root - 60
         lastKey = Self.keyNames[((root - 60) % 12 + 12) % 12]
+        #if os(iOS)
         UISelectionFeedbackGenerator().selectionChanged()
+        #endif
     }
 
     /// The currently selected progression transposed to the chosen key.

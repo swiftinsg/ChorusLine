@@ -9,7 +9,13 @@ struct LessonCard: View {
             Text(title).font(.title2.bold()).foregroundStyle(Palette.accent)
             Text(description).font(.body).foregroundStyle(Palette.cream)
                 .fixedSize(horizontal: false, vertical: true)
-        }.frame(maxWidth: .infinity, alignment: .leading)
-            .padding(22).background(Palette.panel, in: RoundedRectangle(cornerRadius: 20))
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(22)
+        .background(Palette.panel, in: RoundedRectangle(cornerRadius: 20))
+        .overlay {
+            RoundedRectangle(cornerRadius: 20)
+                .stroke(Palette.cream.opacity(0.08), lineWidth: 1)
+        }
     }
 }

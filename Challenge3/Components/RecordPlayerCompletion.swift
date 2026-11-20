@@ -48,7 +48,7 @@ struct RecordPlayerCompletion: View {
                             path.addLine(to: CGPoint(x: deckWidth * 0.65, y: deckWidth * 0.50))
                         }
                         .stroke(accent, style: StrokeStyle(lineWidth: max(4, deckWidth * 0.02), lineCap: .round, lineJoin: .round))
-                        Circle().fill(Palette.cream)
+                        Circle().fill(Color.white)
                             .frame(width: max(10, deckWidth * 0.047), height: max(10, deckWidth * 0.047))
                             .position(x: deckWidth * 0.84, y: deckWidth * 0.17)
                     }

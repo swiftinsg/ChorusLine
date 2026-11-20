@@ -46,7 +46,7 @@ struct RecordPlayerBadge: View {
                 .position(x: size * 0.85, y: size * 0.14)
 
             Circle()
-                .fill(Palette.cream)
+                .fill(Color.white)
                 .frame(width: max(5, size * 0.06), height: max(5, size * 0.06))
                 .position(x: size * 0.85, y: size * 0.14)
         }

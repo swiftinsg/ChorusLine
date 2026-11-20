@@ -9,7 +9,7 @@ struct DrumPadsView: View {
     var body: some View {
         ScrollView { VStack(spacing: 24) {
             Text("BEAT MACHINE").font(.title.bold())
-            Text("Tap a pad to play its beat").foregroundStyle(.gray)
+            Text("Tap a pad to play its beat").foregroundStyle(Palette.muted)
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 15) {
                 ForEach(beats) { beat in
                     Button {
@@ -19,9 +19,9 @@ struct DrumPadsView: View {
                         VStack(spacing: 13) {
                             Image(systemName: "waveform").font(.largeTitle)
                             Text(beat.name).font(.headline)
-                            Text(beat.detail).font(.caption).foregroundStyle(.white.opacity(0.7))
+                            Text(beat.detail).font(.caption).foregroundStyle(Palette.cream.opacity(0.8))
                                 .multilineTextAlignment(.center).fixedSize(horizontal: false, vertical: true)
-                        }.frame(maxWidth: .infinity).frame(height: 125)
+                        }.frame(maxWidth: .infinity).frame(minHeight: 120, idealHeight: 125)
                             .background(selected == beat.id ? Palette.accent.opacity(0.45) : Palette.panel, in: RoundedRectangle(cornerRadius: 18))
                     }.buttonStyle(.plain)
                 }

@@ -13,7 +13,7 @@ struct MelodyRecorderView: View {
                 .foregroundStyle(Palette.accent)
             Vinyl(color: Palette.accent, size: 190)
             Text("Turn your drawings into melody. Long strokes become sustained notes, and short strokes become quick notes.")
-                .foregroundStyle(.gray)
+                .foregroundStyle(Palette.muted)
                 .multilineTextAlignment(.center)
 
             NavigationLink {
@@ -22,11 +22,11 @@ struct MelodyRecorderView: View {
                 Label("Open Melody Canvas", systemImage: "paintbrush.pointed.fill")
                     .frame(maxWidth: .infinity).padding(15)
                     .background(Palette.accent, in: RoundedRectangle(cornerRadius: 14))
-                    .foregroundStyle(Palette.background)
+                    .foregroundStyle(.white)
             }
 
             Text("For the best experience, hold your phone horizontally on the next page.")
-                .font(.caption).foregroundStyle(.gray).multilineTextAlignment(.center)
+                .font(.caption).foregroundStyle(Palette.muted).multilineTextAlignment(.center)
 
             Spacer()
             PrimaryAction(title: "Done — Complete Module") {

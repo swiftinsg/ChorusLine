@@ -1,5 +1,7 @@
 import SwiftUI
+#if canImport(UIKit)
 import UIKit
+#endif
 
 /// Interactive drawing canvas that turns strokes into melody.
 struct MelodyDrawView: View {
@@ -27,7 +29,9 @@ struct MelodyDrawView: View {
             }
         }
         .navigationTitle("")
+        #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
+        #endif
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button("Clear") {
@@ -56,7 +60,7 @@ struct MelodyDrawView: View {
                 .foregroundStyle(Palette.cream)
             Text("Hold your device in landscape to draw your melody.")
                 .font(.subheadline)
-                .foregroundStyle(.gray)
+                .foregroundStyle(Palette.muted)
                 .multilineTextAlignment(.center)
         }
         .padding(32)
@@ -67,10 +71,10 @@ struct MelodyDrawView: View {
             GeometryReader { canvasGeo in
                 ZStack {
                     RoundedRectangle(cornerRadius: 18)
-                        .fill(Color.black.opacity(0.28))
+                        .fill(Palette.subtle.opacity(0.75))
                         .overlay(
                             RoundedRectangle(cornerRadius: 18)
-                                .stroke(Palette.accent.opacity(0.18), lineWidth: 1)
+                                .stroke(Palette.accent.opacity(0.22), lineWidth: 1)
                         )
 
                     Canvas { context, canvasSize in
@@ -90,7 +94,7 @@ struct MelodyDrawView: View {
                                 .font(.headline)
                             Text("Long strokes = sustained notes • Short strokes = quick notes")
                                 .font(.caption)
-                                .foregroundStyle(.gray)
+                                .foregroundStyle(Palette.muted)
                         }
                         .foregroundStyle(Palette.cream.opacity(0.9))
                         .multilineTextAlignment(.center)
@@ -288,11 +292,13 @@ struct MelodyDrawView: View {
     }
 
     private func requestLandscape() {
+        #if os(iOS)
         guard let scene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first else { return }
         if #available(iOS 16.0, *) {
             let prefs = UIWindowScene.GeometryPreferences.iOS(interfaceOrientations: .landscape)
             scene.requestGeometryUpdate(prefs)
         }
+        #endif
     }
 }
 

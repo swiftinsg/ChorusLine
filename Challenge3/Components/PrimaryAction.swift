@@ -9,7 +9,8 @@ struct PrimaryAction: View {
         Button(action: action) {
             Text(title).font(.headline).frame(maxWidth: .infinity).padding(17)
                 .background(tint, in: RoundedRectangle(cornerRadius: 14))
-                .foregroundStyle(Palette.background)
+                .foregroundStyle(.white)
         }
+        .buttonStyle(.plain)
     }
 }

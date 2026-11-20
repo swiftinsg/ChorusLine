@@ -1,5 +1,7 @@
 import SwiftUI
+#if canImport(UIKit)
 import UIKit
+#endif
 
 /// Quiz shown at the end of Module 1.
 struct StructureQuiz: View {
@@ -29,45 +31,52 @@ struct StructureQuiz: View {
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
 
-            ZStack {
-                Vinyl(color: Palette.accent, size: 245, showCenterDot: false, showsRimMark: true)
-                    .rotationEffect(.degrees(rotation))
-                    .scaleEffect(recordPulse ? 1.06 : 1)
-                    .animation(.spring(response: 0.3, dampingFraction: 0.55), value: recordPulse)
-                    .shadow(color: showCorrect ? Color.green.opacity(0.75) : .clear, radius: 28)
+            GeometryReader { geo in
+                let vinylSize = min(260, max(180, geo.size.width - 20))
+                ZStack {
+                    Vinyl(color: Palette.accent, size: vinylSize, showCenterDot: false, showsRimMark: true)
+                        .rotationEffect(.degrees(rotation))
+                        .scaleEffect(recordPulse ? 1.06 : 1)
+                        .animation(.spring(response: 0.3, dampingFraction: 0.55), value: recordPulse)
+                        .shadow(color: showCorrect ? Color.green.opacity(0.75) : .clear, radius: 28)
 
-                // Keep the answer inside the record's centre label so it never
-                // bleeds out over the grooves.
-                VStack(spacing: 4) {
-                    Text("ANSWER").font(.caption2.bold()).tracking(2)
-                    Text(questions[question].1[selected])
-                        .font(.system(size: 15, weight: .bold))
-                        .multilineTextAlignment(.center)
-                        .lineLimit(2)
-                        .minimumScaleFactor(0.75)
-                        .frame(width: 92)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                .foregroundStyle(.white)
-                .allowsHitTesting(false)
+                    // Keep the answer inside the record's centre label so it never
+                    // bleeds out over the grooves.
+                    VStack(spacing: 4) {
+                        Text("ANSWER").font(.caption2.bold()).tracking(2)
+                        Text(questions[question].1[selected])
+                            .font(.system(size: 15, weight: .bold))
+                            .multilineTextAlignment(.center)
+                            .lineLimit(2)
+                            .minimumScaleFactor(0.75)
+                            .frame(width: max(70, vinylSize * 0.37))
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .foregroundStyle(.white)
+                    .allowsHitTesting(false)
 
-                ForEach(flyingNotes) { note in
-                    FlyingMusicNote(particle: note)
+                    ForEach(flyingNotes) { note in
+                        FlyingMusicNote(particle: note)
+                    }
                 }
-            }
-            .modifier(CircularVinylGesture(diameter: 245) { direction in
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .modifier(CircularVinylGesture(diameter: vinylSize) { direction in
                 guard !isAdvancing else { return }
                 withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) { rotation += Double(direction) * 65 }
                 selected = (selected + direction + 4) % 4
                 spawnFlyingNotes()
+                #if os(iOS)
                 UISelectionFeedbackGenerator().selectionChanged()
+                #endif
                 revealed = false
                 withAnimation(.easeOut(duration: 0.15)) { feedback = "" }
                 showCorrect = false
             })
+            }
+            .frame(height: 280)
 
             Text("Move your finger around the edge of the vinyl to choose an answer")
-                .font(.caption).foregroundStyle(.gray).multilineTextAlignment(.center)
+                .font(.caption).foregroundStyle(Palette.muted).multilineTextAlignment(.center)
             if !feedback.isEmpty {
                 Text(feedback)
                     .foregroundStyle(feedback == "Correct!" ? .green : .orange)
@@ -90,7 +99,9 @@ struct StructureQuiz: View {
         if selected == questions[question].2 {
             celebrate()
         } else {
+            #if os(iOS)
             UIImpactFeedbackGenerator(style: .rigid).impactOccurred()
+            #endif
             withAnimation(.easeOut(duration: 0.2)) {
                 feedback = "Not quite — spin and try again."
             }
@@ -99,7 +110,9 @@ struct StructureQuiz: View {
 
     /// Shows the success feedback, then moves to the next question on its own.
     private func celebrate() {
+        #if os(iOS)
         UINotificationFeedbackGenerator().notificationOccurred(.success)
+        #endif
         recordPulse = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.22) { recordPulse = false }
         withAnimation(.spring(response: 0.35, dampingFraction: 0.55)) {

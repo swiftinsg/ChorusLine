@@ -1,5 +1,7 @@
 import SwiftUI
+#if canImport(UIKit)
 import UIKit
+#endif
 
 /// One card of lesson content shown in a `LessonSlideshow`.
 struct LessonSlide {
@@ -66,7 +68,7 @@ struct LessonSlideshow: View {
             if showsSwipeHint {
                 Text(hint)
                     .font(.caption)
-                    .foregroundStyle(.gray)
+                    .foregroundStyle(Palette.muted)
                     .multilineTextAlignment(.center)
                     .padding(.bottom, vinylSize / 2 + 12)
             } else {
@@ -112,7 +114,9 @@ struct LessonSlideshow: View {
                 drag = value.translation.width
                 if abs(drag) > threshold && !crossedThreshold {
                     crossedThreshold = true
+                    #if os(iOS)
                     UISelectionFeedbackGenerator().selectionChanged()
+                    #endif
                 } else if abs(drag) <= threshold && crossedThreshold {
                     crossedThreshold = false
                 }
@@ -143,7 +147,9 @@ struct LessonSlideshow: View {
             spin += dragSpin + (movingForward ? 360 : -360)
             drag = 0
         }
+        #if os(iOS)
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        #endif
 
         guard target >= 0 else { return }
         withAnimation(.spring(response: 0.5, dampingFraction: 0.82)) {
