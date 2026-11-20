@@ -3,7 +3,7 @@ VINYL STUDIO — SwiftUI prototype
 1. Open Xcode and create a new iOS App project named VinylStudio.
 2. Choose SwiftUI as the interface and Swift as the language.
 3. Delete the automatically created ContentView.swift and VinylStudioApp.swift from your Xcode project.
-4. Drag this folder's VinylStudioApp.swift into the project, checking 'Copy items if needed' and the app target.
+4. Drag this folder's Views, Components, Models, Audio and Support folders into the project, checking 'Copy items if needed' and the app target.
 5. In your target's Info settings, add Privacy - Microphone Usage Description (NSMicrophoneUsageDescription): 'Record melodies you hum for your songs.'
 6. Set iOS Deployment Target to iOS 17.0 or newer.
 7. Build and run on an iPhone or iOS simulator. For microphone recording, a physical iPhone is recommended.
