@@ -9,10 +9,23 @@ struct PianoView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var audio = MusicEngine()
     @State private var chosen = 0
+    @State private var selectedKey = 0
     @State private var lastKey = "C"
     @State private var transposeOffset = 0
     @State private var bpm: Double = 100
     private static let keyNames = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"]
+    private static let majorScale: Set<Int> = [0, 2, 4, 5, 7, 9, 11]
+
+    /// Progressions whose chords are all diatonic to the selected song key.
+    private var filteredProgressions: [Progression] {
+        progressions.filter { progression in
+            progression.notes.allSatisfy { chord in
+                chord.allSatisfy { midi in
+                    Self.majorScale.contains(((midi - selectedKey) % 12 + 12) % 12)
+                }
+            }
+        }
+    }
 
     var body: some View {
         ScrollView {
@@ -20,21 +33,26 @@ struct PianoView: View {
             HStack(alignment: .top, spacing: 12) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("CHORD PIANO").font(.title.bold())
-                    Text("Pick a progression, tap a chord column to hear it, or press a piano key to transpose the progression.")
+                    Text("Choose a key and progression, tap a chord column to hear it, or press a piano key to transpose the progression.")
                         .font(.caption).foregroundStyle(Palette.muted)
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 Spacer(minLength: 8)
-                progressionMenu
+                VStack(alignment: .trailing, spacing: 8) {
+                    keyMenu
+                    progressionMenu
+                }
             }
 
-            VStack(spacing: 3) {
-                Text(progressions[chosen].name)
-                    .font(.headline).foregroundStyle(Palette.accent)
-                Text(progressions[chosen].mood)
-                    .font(.caption).foregroundStyle(Palette.muted)
+            if let selected = progressions.first(where: { $0.id == chosen }) {
+                VStack(spacing: 3) {
+                    Text(selected.name)
+                        .font(.headline).foregroundStyle(Palette.accent)
+                    Text(selected.mood)
+                        .font(.caption).foregroundStyle(Palette.muted)
+                }
+                .frame(maxWidth: .infinity)
             }
-            .frame(maxWidth: .infinity)
 
             chordColumnsView
 
@@ -75,13 +93,23 @@ struct PianoView: View {
         }
         .modifier(LessonBackground())
         .navigationTitle("")
-        .onAppear { chosen = state.selectedProgression }
+        .onAppear {
+            selectedKey = 0
+            lastKey = Self.keyNames[selectedKey]
+            transposeOffset = 0
+            chosen = state.selectedProgression
+            if !filteredProgressions.contains(where: { $0.id == chosen }) {
+                if let first = filteredProgressions.first {
+                    chosen = first.id
+                    state.selectedProgression = chosen
+                }
+            }
+        }
         .onDisappear { audio.stop() }
     }
 
     /// Shows each chord in the progression as a tappable column of its notes.
     private var chordColumnsView: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
         HStack(alignment: .top, spacing: 8) {
             ForEach(Array(currentChordNotes().enumerated()), id: \.offset) { index, notes in
                 Button {
@@ -116,16 +144,41 @@ struct PianoView: View {
                     .overlay(RoundedRectangle(cornerRadius: 12).stroke(Palette.accent.opacity(0.35), lineWidth: 1))
                 }
                 .buttonStyle(.plain)
+                .frame(maxWidth: .infinity)
                 .accessibilityLabel("Play chord \(chordLabel(for: notes))")
             }
         }
-        }
+        .frame(maxWidth: .infinity)
     }
 
-    /// Lists every available progression in a compact top-right menu.
+    /// Lets the user choose the song key and filters available progressions.
+    private var keyMenu: some View {
+        Menu {
+            ForEach(0..<Self.keyNames.count, id: \.self) { index in
+                Button {
+                    selectKey(index)
+                } label: {
+                    if selectedKey == index {
+                        Label(Self.keyNames[index], systemImage: "checkmark")
+                    } else {
+                        Text(Self.keyNames[index])
+                    }
+                }
+            }
+        } label: {
+            Label("Key: \(Self.keyNames[selectedKey])", systemImage: "music.note")
+                .font(.subheadline.bold())
+                .padding(.horizontal, 12).padding(.vertical, 8)
+                .background(Palette.panel, in: Capsule())
+                .overlay(Capsule().stroke(Palette.accent.opacity(0.35)))
+        }
+        .tint(Palette.cream)
+    }
+
+    /// Lists progressions available in the selected key.
     private var progressionMenu: some View {
         Menu {
-            ForEach(progressions) { progression in
+            ForEach(filteredProgressions) { progression in
                 Button {
                     chosen = progression.id
                     state.selectedProgression = chosen
@@ -147,10 +200,30 @@ struct PianoView: View {
         .tint(Palette.cream)
     }
 
+    /// Updates the selected song key and keeps the chosen progression valid.
+    private func selectKey(_ index: Int) {
+        selectedKey = index
+        lastKey = Self.keyNames[index]
+        transposeOffset = 0
+        if !filteredProgressions.contains(where: { $0.id == chosen }) {
+            if let first = filteredProgressions.first {
+                chosen = first.id
+                state.selectedProgression = chosen
+            }
+        }
+    }
+
     /// Transposes the chosen progression so it is rooted on `root` without playing it.
     private func transpose(to root: Int) {
-        transposeOffset = root - 60
-        lastKey = Self.keyNames[((root - 60) % 12 + 12) % 12]
+        selectedKey = ((root - 60) % 12 + 12) % 12
+        lastKey = Self.keyNames[selectedKey]
+        transposeOffset = 0
+        if !filteredProgressions.contains(where: { $0.id == chosen }) {
+            if let first = filteredProgressions.first {
+                chosen = first.id
+                state.selectedProgression = chosen
+            }
+        }
         #if os(iOS)
         UISelectionFeedbackGenerator().selectionChanged()
         #endif
@@ -158,7 +231,8 @@ struct PianoView: View {
 
     /// The currently selected progression transposed to the chosen key.
     private func currentChordNotes() -> [[Int]] {
-        progressions[chosen].notes.map { notes in notes.map { $0 + transposeOffset } }
+        guard let progression = progressions.first(where: { $0.id == chosen }) else { return [] }
+        return progression.notes.map { notes in notes.map { $0 + transposeOffset } }
     }
 
     /// Names a chord from its MIDI notes (e.g. major "C", minor "Am").

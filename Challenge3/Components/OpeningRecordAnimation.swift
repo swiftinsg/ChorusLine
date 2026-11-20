@@ -9,9 +9,10 @@ struct OpeningRecordAnimation: View {
         GeometryReader { geo in
             let baseSize = min(210, min(geo.size.width, geo.size.height) * 0.4)
             let maxScale = min(1.25, max(0.85, (geo.size.height * 0.36) / max(baseSize, 1)))
+            let vinylArea = baseSize * max(maxScale, 0.48)
             ZStack {
                 Palette.background.opacity(0.97).ignoresSafeArea()
-                VStack(spacing: 22) {
+                VStack(spacing: 36) {
                     Text("NOW LOADING")
                         .font(.headline)
                         .tracking(4)
@@ -20,6 +21,7 @@ struct OpeningRecordAnimation: View {
                         .scaleEffect(stage == 0 ? 0.48 : maxScale)
                         .rotationEffect(.degrees(stage == 0 ? 0 : 110))
                         .shadow(color: color.opacity(0.5), radius: 30)
+                        .frame(width: vinylArea, height: vinylArea)
                     Text("Dropping the needle…")
                         .foregroundStyle(Palette.cream)
                 }
