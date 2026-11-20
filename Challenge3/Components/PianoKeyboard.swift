@@ -86,7 +86,7 @@ private struct PianoKeyView: View {
     }
 
     private var fillColor: Color {
-        if pressed { return isBlack ? Palette.gold : Color(white: 0.78) }
+        if pressed { return isBlack ? Palette.accent : Color(white: 0.78) }
         return isBlack ? Color(white: 0.06) : .white
     }
 }

@@ -2,11 +2,12 @@ import SwiftUI
 
 /// A record that can spin to show that a module has been completed.
 struct Vinyl: View {
-    var color: Color = .purple
+    var color: Color = Palette.accent
     var spinning = false
     var size: CGFloat = 132
     var showCenterDot = true
     var showsRimMark = false
+    var showsGlow = true
     @State private var rotation = 0.0
     @State private var dropped = false
     var body: some View {
@@ -21,7 +22,7 @@ struct Vinyl: View {
                 // A short highlight on the outer edge makes the spin easy to see
                 // without adding a marker dot.
                 Circle().trim(from: 0, to: 0.08)
-                    .stroke(Palette.gold.opacity(0.9), style: StrokeStyle(lineWidth: max(5, size * 0.03), lineCap: .round))
+                    .stroke(color.opacity(0.95), style: StrokeStyle(lineWidth: max(5, size * 0.03), lineCap: .round))
                     .padding(size * 0.07)
                     .rotationEffect(.degrees(-90))
             }
@@ -33,7 +34,7 @@ struct Vinyl: View {
         .rotationEffect(.degrees(rotation))
         .scaleEffect(dropped ? 1 : 1.12)
         .offset(y: dropped ? 0 : -13)
-        .shadow(color: color.opacity(0.25), radius: 16)
+        .shadow(color: showsGlow ? color.opacity(0.25) : .clear, radius: 16)
         .onAppear {
             withAnimation(.spring(response: 0.55, dampingFraction: 0.62)) { dropped = true }
             if spinning { start() }

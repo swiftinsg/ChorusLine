@@ -10,9 +10,8 @@ struct MelodyRecorderView: View {
             Text("MELODY")
                 .font(.system(size: 28, weight: .bold))
                 .tracking(1.5)
-                .foregroundStyle(Palette.gold)
-                .shadow(color: Palette.gold.opacity(0.25), radius: 8)
-            Vinyl(color: .mint, size: 190)
+                .foregroundStyle(Palette.accent)
+            Vinyl(color: Palette.accent, size: 190)
             Text("Hum a tune and capture it before it slips away.")
                 .foregroundStyle(.gray)
                 .multilineTextAlignment(.center)
@@ -21,7 +20,7 @@ struct MelodyRecorderView: View {
             } label: {
                 Label(recorder.isRecording ? "Stop Recording" : "Record Your Hum", systemImage: recorder.isRecording ? "stop.circle.fill" : "mic.circle.fill")
                     .frame(maxWidth: .infinity).padding(15)
-                    .background(recorder.isRecording ? Color.red : Color.mint, in: RoundedRectangle(cornerRadius: 14))
+                    .background(recorder.isRecording ? Color.red : Palette.accent, in: RoundedRectangle(cornerRadius: 14))
                     .foregroundStyle(Palette.background)
             }
             if recorder.hasRecording {

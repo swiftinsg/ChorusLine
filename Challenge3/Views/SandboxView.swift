@@ -48,7 +48,7 @@ struct SandboxView: View {
                 Text("3. SAVE YOUR SONG IDEA").font(.headline)
                 Text("Your chord progression and drum choice will be saved on this device. You can add your recorded melody from Module 4 separately.")
                     .font(.subheadline).foregroundStyle(.gray)
-                PrimaryAction(title: "Save Song Idea") {
+                PrimaryAction(title: "Save Song Idea", tint: Palette.gold) {
                     let idea = SongIdea(title: songName, progression: chosenProgression, beat: chosenBeat, createdAt: Date())
                     SongLibrary.save(idea)
                     state.finish(4)
@@ -56,7 +56,7 @@ struct SandboxView: View {
                 }
                 if saved {
                     Label("Saved to your song library!", systemImage: "checkmark.circle.fill").foregroundStyle(.green)
-                    PrimaryAction(title: "▶ Play Your Song") {
+                    PrimaryAction(title: "▶ Play Your Song", tint: Palette.gold) {
                         audio.playSong(progression: progressions[chosenProgression], beat: beats[chosenBeat])
                     }
                 }

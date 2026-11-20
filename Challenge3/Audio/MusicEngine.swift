@@ -79,16 +79,10 @@ final class MusicEngine: ObservableObject {
             let local = t - Double(step) * secondsPerStep
             var signal = 0.0
             let hits = steps[step]
-            if hits.contains(0) { signal += sin(2 * .pi * (55 + 95 * exp(-local * 28)) * local) * exp(-local * 24) * 0.7 }
-            if hits.contains(1) {
-                let noise = sin(Double(i) * 83.37) * sin(Double(i) * 17.13)
-                signal += noise * exp(-local * 26) * 0.48
+            for hit in hits {
+                signal += drumSample(hit: hit, local: local, index: i)
             }
-            if hits.contains(2) {
-                let noise = sin(Double(i) * 59.17) * sin(Double(i) * 103.9)
-                signal += noise * exp(-local * 85) * 0.22
-            }
-            let value = Float(max(-0.9, min(0.9, signal)))
+            let value = Float(max(-0.95, min(0.95, signal)))
             left[i] = value; right[i] = value
         }
         player.scheduleBuffer(buffer, completionHandler: nil)
@@ -120,14 +114,51 @@ final class MusicEngine: ObservableObject {
             let local = t.truncatingRemainder(dividingBy: stepDuration)
             let hits = beat.steps[step]
             var drums = 0.0
-            if hits.contains(0) { drums += sin(2 * .pi * (58 + 85 * exp(-local * 26)) * local) * exp(-local * 25) * 0.52 }
-            if hits.contains(1) { drums += sin(Double(i) * 83.37) * sin(Double(i) * 17.13) * exp(-local * 27) * 0.32 }
-            if hits.contains(2) { drums += sin(Double(i) * 59.17) * sin(Double(i) * 103.9) * exp(-local * 92) * 0.14 }
-            let value = Float(max(-0.9, min(0.9, chord + drums)))
+            for hit in hits {
+                drums += drumSample(hit: hit, local: local, index: i)
+            }
+            let value = Float(max(-0.95, min(0.95, chord + drums)))
             channels[0][i] = value
             channels[1][i] = value
         }
         player.scheduleBuffer(buffer, completionHandler: nil)
     }
     func stop() { player.stop(); player.play() }
+
+    // MARK: - Drum synthesis
+
+    /// Synthesises a conventional drum hit. 0 = kick, 1 = snare, 2 = closed hi-hat.
+    private func drumSample(hit: Int, local: Double, index: Int) -> Double {
+        switch hit {
+        case 0:
+            // Kick: fast pitch drop with a short click for attack.
+            let pitch = 48.0 + 120.0 * exp(-local * 32.0)
+            let body = sin(2.0 * .pi * pitch * local) * exp(-local * 6.5)
+            let click = noise(index: index, salt: 11) * exp(-local * 90.0) * 0.25
+            return (body + click) * 0.85
+        case 1:
+            // Snare: broadband noise burst plus a short tonal body.
+            let n = noise(index: index, salt: 29)
+            let noisePart = n * exp(-local * 18.0)
+            let tone = sin(2.0 * .pi * 190.0 * local) * exp(-local * 22.0) * 0.35
+            return (noisePart * 0.7 + tone) * 0.55
+        case 2:
+            // Closed hi-hat: bright, tight noise with a fast decay.
+            let n = noise(index: index, salt: 47)
+            return n * exp(-local * 55.0) * 0.28
+        default:
+            return 0
+        }
+    }
+
+    /// Deterministic pseudo-random noise in [-1, 1] for synthesized percussion.
+    private func noise(index: Int, salt: Int) -> Double {
+        var x = UInt32(bitPattern: Int32(truncatingIfNeeded: index &* 1_664_525 &+ 1_013_904_223 &+ salt &* 374_761))
+        x ^= x >> 16
+        x &*= 0x7feb_352d
+        x ^= x >> 15
+        x &*= 0x846c_a68b
+        x ^= x >> 16
+        return Double(Int32(bitPattern: x)) / Double(Int32.max)
+    }
 }

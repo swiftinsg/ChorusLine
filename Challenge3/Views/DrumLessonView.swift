@@ -12,7 +12,7 @@ struct DrumLessonView: View {
         if showPads {
             DrumPadsView().environmentObject(state)
         } else {
-            LessonSlideshow(moduleTitle: "DRUM BEATS", accent: .orange, slides: slides) {
+            LessonSlideshow(moduleTitle: "DRUM BEATS", accent: Palette.accent, slides: slides) {
                 showPads = true
             }
         }

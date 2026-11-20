@@ -6,7 +6,7 @@ struct LessonCard: View {
     let description: String
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text(title).font(.title2.bold()).foregroundStyle(Palette.gold)
+            Text(title).font(.title2.bold()).foregroundStyle(Palette.accent)
             Text(description).font(.body).foregroundStyle(Palette.cream)
                 .fixedSize(horizontal: false, vertical: true)
         }.frame(maxWidth: .infinity, alignment: .leading)

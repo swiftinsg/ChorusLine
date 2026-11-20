@@ -8,6 +8,7 @@ struct PianoView: View {
     @StateObject private var audio = MusicEngine()
     @State private var chosen = 0
     @State private var lastKey = "C"
+    @State private var transposeOffset = 0
     @State private var bpm: Double = 100
     private static let keyNames = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"]
 
@@ -26,8 +27,8 @@ struct PianoView: View {
 
             VStack(spacing: 3) {
                 Text(progressions[chosen].name)
-                    .font(.headline).foregroundStyle(Palette.gold)
-                Text(progressions[chosen].chords.joined(separator: "  –  "))
+                    .font(.headline).foregroundStyle(Palette.accent)
+                Text(transposedChordLabels())
                     .font(.subheadline)
                 Text(progressions[chosen].mood)
                     .font(.caption).foregroundStyle(.gray)
@@ -39,7 +40,7 @@ struct PianoView: View {
 
             HStack {
                 Text("Playing in \(lastKey)")
-                    .font(.caption.bold()).foregroundStyle(Palette.gold)
+                    .font(.caption.bold()).foregroundStyle(Palette.accent)
                 Spacer()
                 Text("Tap a key to transpose")
                     .font(.caption).foregroundStyle(.gray)
@@ -50,12 +51,12 @@ struct PianoView: View {
                     .font(.caption.bold())
                     .foregroundStyle(.gray)
                 Slider(value: $bpm, in: 60...180, step: 5)
-                    .tint(Palette.gold)
+                    .tint(Palette.accent)
                     .accessibilityLabel("Tempo")
                     .accessibilityValue("\(Int(bpm)) beats per minute")
                 Text("\(Int(bpm)) BPM")
                     .font(.caption.bold().monospacedDigit())
-                    .foregroundStyle(Palette.gold)
+                    .foregroundStyle(Palette.accent)
                     .frame(width: 64, alignment: .trailing)
             }
 
@@ -94,7 +95,7 @@ struct PianoView: View {
                 .font(.subheadline.bold())
                 .padding(.horizontal, 12).padding(.vertical, 8)
                 .background(Palette.panel, in: Capsule())
-                .overlay(Capsule().stroke(Palette.gold.opacity(0.35)))
+                .overlay(Capsule().stroke(Palette.accent.opacity(0.35)))
         }
         .tint(Palette.cream)
     }
@@ -102,9 +103,26 @@ struct PianoView: View {
     /// Plays the chosen progression transposed so it is rooted on `root`.
     private func play(root: Int) {
         audio.stop()
-        let offset = root - 60
-        audio.playProgression(progressions[chosen].notes.map { notes in notes.map { $0 + offset } }, bpm: bpm)
+        transposeOffset = root - 60
+        audio.playProgression(progressions[chosen].notes.map { notes in notes.map { $0 + transposeOffset } }, bpm: bpm)
         lastKey = Self.keyNames[((root - 60) % 12 + 12) % 12]
         UISelectionFeedbackGenerator().selectionChanged()
+    }
+
+    /// Chord labels for the selected progression, transposed to the last pressed key.
+    private func transposedChordLabels() -> String {
+        progressions[chosen].notes
+            .map { chordLabel(for: $0.map { $0 + transposeOffset }) }
+            .joined(separator: "  –  ")
+    }
+
+    /// Names a chord from its MIDI notes (e.g. major "C", minor "Am").
+    private func chordLabel(for midiNotes: [Int]) -> String {
+        let ordered = midiNotes.sorted()
+        guard let root = ordered.first else { return "" }
+        let rootName = Self.keyNames[((root % 12) + 12) % 12]
+        let intervals = Set(ordered.map { $0 - root })
+        let quality = intervals.contains(3) ? "m" : ""
+        return rootName + quality
     }
 }

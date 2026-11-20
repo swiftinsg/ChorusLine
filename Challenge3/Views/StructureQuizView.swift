@@ -22,14 +22,14 @@ struct StructureQuiz: View {
         VStack(spacing: 22) {
             Text("SPIN THE ANSWERS").font(.title2.bold())
             ProgressView(value: Double(question + 1), total: Double(questions.count))
-                .tint(Palette.gold).accessibilityLabel("Quiz progress")
+                .tint(Palette.accent).accessibilityLabel("Quiz progress")
             Text(questions[question].0)
                 .font(.title3.bold())
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
 
             ZStack {
-                Vinyl(color: .purple, size: 245, showCenterDot: false, showsRimMark: true)
+                Vinyl(color: Palette.accent, size: 245, showCenterDot: false, showsRimMark: true)
                     .rotationEffect(.degrees(rotation))
                     .scaleEffect(recordPulse ? 1.06 : 1)
                     .animation(.spring(response: 0.3, dampingFraction: 0.55), value: recordPulse)

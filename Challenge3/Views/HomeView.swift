@@ -10,8 +10,7 @@ struct HomeView: View {
     @State private var openingStage = 0
     @State private var path: [Int] = []
     private let titles = ["Song Structure", "Chord Progression", "Drum Beats", "Melody"]
-    private let subtitles = ["Learn how songs are built", "Play chords on a piano", "Explore popular rhythms", "Find your own sound"]
-    private let colors: [Color] = [.purple, .cyan, .orange, .mint]
+    private let colors: [Color] = Array(repeating: Palette.accent, count: 4)
     var body: some View {
         NavigationStack(path: $path) {
             GeometryReader { proxy in
@@ -30,15 +29,14 @@ struct HomeView: View {
                                     if state.completed.contains(index) {
                                         RecordPlayerBadge(color: colors[index], size: vinylSize)
                                     } else {
-                                        Vinyl(color: colors[index], size: vinylSize)
+                                        Vinyl(color: colors[index], size: vinylSize, showsGlow: false)
                                     }
                                     Text(titles[index]).font(.system(size: compact ? 13 : 15, weight: .bold))
-                                    Text(state.completed.contains(index) ? "COMPLETED ✓" : subtitles[index])
-                                        .font(.caption2).foregroundStyle(state.completed.contains(index) ? .green : .gray)
-                                        .multilineTextAlignment(.center)
-                                        .lineLimit(2)
-                                        .minimumScaleFactor(0.8)
-                                        .frame(height: 26, alignment: .top)
+                                    if state.completed.contains(index) {
+                                        Text("COMPLETED ✓")
+                                            .font(.caption2)
+                                            .foregroundStyle(.green)
+                                    }
                                 }
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, compact ? 10 : 14)
@@ -49,20 +47,12 @@ struct HomeView: View {
                     Button { openModule(4) } label: {
                         HStack(spacing: compact ? 18 : 24) {
                             if state.completed.contains(4) {
-                                RecordPlayerBadge(color: Palette.gold, size: vinylSize * 0.8)
+                                RecordPlayerBadge(color: Palette.gold, size: vinylSize * 0.8, accent: Palette.gold)
                             } else {
-                                Vinyl(color: Palette.gold, size: vinylSize * 0.8)
+                                Vinyl(color: Palette.gold, size: vinylSize * 0.8, showsGlow: false)
                             }
-                            VStack(alignment: .leading, spacing: 6) {
-                                Text("Sandbox")
-                                    .font(.system(size: compact ? 20 : 23, weight: .bold))
-                                Text("Mix chords and drum beats into your song")
-                                    .font(.system(size: compact ? 12 : 13))
-                                    .foregroundStyle(.white.opacity(0.7))
-                                    .lineLimit(2)
-                                    .minimumScaleFactor(0.8)
-                                    .fixedSize(horizontal: false, vertical: true)
-                            }
+                            Text("Sandbox")
+                                .font(.system(size: compact ? 20 : 23, weight: .bold))
                             Spacer(minLength: 0)
                         }
                         .padding(compact ? 14 : 18)
@@ -88,14 +78,14 @@ struct HomeView: View {
                 }.environmentObject(state)
             }
         }
-        .tint(Palette.gold)
+        .tint(Palette.accent)
         .overlay {
             if let module = openingModule {
-                OpeningRecordAnimation(color: module == 4 ? Palette.gold : colors[module], stage: openingStage)
+                OpeningRecordAnimation(color: module == 4 ? Palette.gold : colors[module], stage: openingStage, accent: module == 4 ? Palette.gold : Palette.accent)
                     .transition(.opacity).allowsHitTesting(true)
             }
             if let module = finishingModule {
-                RecordPlayerCompletion(color: module == 4 ? Palette.gold : colors[module], stage: completionStage)
+                RecordPlayerCompletion(color: module == 4 ? Palette.gold : colors[module], stage: completionStage, accent: module == 4 ? Palette.gold : Palette.accent)
                     .transition(.opacity).allowsHitTesting(true)
             }
         }

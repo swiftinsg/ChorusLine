@@ -4,11 +4,12 @@ import SwiftUI
 struct OpeningRecordAnimation: View {
     let color: Color
     let stage: Int
+    var accent: Color = Palette.accent
     var body: some View {
         ZStack {
             Palette.background.opacity(0.97).ignoresSafeArea()
             VStack(spacing: 26) {
-                Text("NOW LOADING").font(.headline).tracking(4).foregroundStyle(Palette.gold)
+                Text("NOW LOADING").font(.headline).tracking(4).foregroundStyle(accent)
                 Vinyl(color: color, spinning: true, size: 220)
                     .scaleEffect(stage == 0 ? 0.48 : 1.38)
                     .rotationEffect(.degrees(stage == 0 ? 0 : 110))

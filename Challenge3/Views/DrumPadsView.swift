@@ -22,7 +22,7 @@ struct DrumPadsView: View {
                             Text(beat.detail).font(.caption).foregroundStyle(.white.opacity(0.7))
                                 .multilineTextAlignment(.center).fixedSize(horizontal: false, vertical: true)
                         }.frame(maxWidth: .infinity).frame(height: 125)
-                            .background(selected == beat.id ? Color.orange.opacity(0.45) : Palette.panel, in: RoundedRectangle(cornerRadius: 18))
+                            .background(selected == beat.id ? Palette.accent.opacity(0.45) : Palette.panel, in: RoundedRectangle(cornerRadius: 18))
                     }.buttonStyle(.plain)
                 }
             }

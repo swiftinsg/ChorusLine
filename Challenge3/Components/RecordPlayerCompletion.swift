@@ -4,6 +4,7 @@ import SwiftUI
 struct RecordPlayerCompletion: View {
     let color: Color
     let stage: Int
+    var accent: Color = Palette.accent
 
     var body: some View {
         GeometryReader { geometry in
@@ -15,14 +16,14 @@ struct RecordPlayerCompletion: View {
                 Palette.background.opacity(0.97).ignoresSafeArea()
                 VStack(spacing: 24) {
                     Text("MODULE COMPLETE!")
-                        .font(.title2.bold()).foregroundStyle(Palette.gold)
+                        .font(.title2.bold()).foregroundStyle(accent)
 
                     ZStack {
                         RoundedRectangle(cornerRadius: deckWidth * 0.08)
                             .fill(LinearGradient(colors: [Color(white: 0.31), Palette.panel, Color(white: 0.08)], startPoint: .topLeading, endPoint: .bottomTrailing))
                             .overlay {
                                 RoundedRectangle(cornerRadius: deckWidth * 0.08)
-                                    .stroke(Palette.gold.opacity(0.55), lineWidth: 2)
+                                    .stroke(accent.opacity(0.55), lineWidth: 2)
                             }
                             .shadow(color: .black.opacity(0.7), radius: 16, y: 10)
 
@@ -46,7 +47,7 @@ struct RecordPlayerCompletion: View {
                             path.addLine(to: CGPoint(x: deckWidth * 0.73, y: deckWidth * 0.30))
                             path.addLine(to: CGPoint(x: deckWidth * 0.65, y: deckWidth * 0.50))
                         }
-                        .stroke(Palette.gold, style: StrokeStyle(lineWidth: max(4, deckWidth * 0.02), lineCap: .round, lineJoin: .round))
+                        .stroke(accent, style: StrokeStyle(lineWidth: max(4, deckWidth * 0.02), lineCap: .round, lineJoin: .round))
                         Circle().fill(Palette.cream)
                             .frame(width: max(10, deckWidth * 0.047), height: max(10, deckWidth * 0.047))
                             .position(x: deckWidth * 0.84, y: deckWidth * 0.17)

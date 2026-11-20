@@ -13,7 +13,7 @@ struct ChordLessonView: View {
         if showPiano {
             PianoView().environmentObject(state)
         } else {
-            LessonSlideshow(moduleTitle: "CHORD PROGRESSION", accent: .cyan, slides: slides) {
+            LessonSlideshow(moduleTitle: "CHORD PROGRESSION", accent: Palette.accent, slides: slides) {
                 showPiano = true
             }
         }

@@ -14,7 +14,7 @@ struct MelodyView: View {
         if recording {
             MelodyRecorderView().environmentObject(state)
         } else {
-            LessonSlideshow(moduleTitle: "MELODY", accent: .mint, slides: slides) {
+            LessonSlideshow(moduleTitle: "MELODY", accent: Palette.accent, slides: slides) {
                 recording = true
             }
         }
