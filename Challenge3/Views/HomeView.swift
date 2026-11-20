@@ -13,23 +13,18 @@ struct HomeView: View {
     @State private var path: [Int] = []
     private let titles = ["Song Structure", "Chord Progression", "Drum Beats", "Melody"]
     private let colors: [Color] = Array(repeating: Palette.accent, count: 4)
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-
     var body: some View {
         NavigationStack(path: $path) {
             GeometryReader { proxy in
-                ScrollView {
-                    let compact = proxy.size.height < 700
-                    let wide = horizontalSizeClass == .regular || proxy.size.width > 700
-                    let vinylSize = max(56, min(wide ? 140 : 116, min(proxy.size.width, proxy.size.height) * 0.16))
-                    let columns = Array(repeating: GridItem(.flexible(), spacing: compact ? 10 : 14), count: wide ? 4 : 2)
+                let compact = proxy.size.height < 640
+                let vinylSize = max(56, min(116, (proxy.size.height - 380) / 3))
 
-                    VStack(spacing: compact ? 12 : 18) {
+                VStack(spacing: compact ? 12 : 18) {
                     Text("CHORUS LINE")
                         .font(.system(size: compact ? 30 : 36, weight: .bold))
                         .tracking(1)
                         .padding(.top, compact ? 6 : 14)
-                    LazyVGrid(columns: columns, spacing: compact ? 12 : 16) {
+                    LazyVGrid(columns: [GridItem(.flexible(), spacing: compact ? 10 : 14), GridItem(.flexible(), spacing: compact ? 10 : 14)], spacing: compact ? 12 : 16) {
                         ForEach(0..<4) { index in
                             Button { openModule(index) } label: {
                                 VStack(spacing: compact ? 5 : 8) {
@@ -84,15 +79,10 @@ struct HomeView: View {
                         .background(Palette.panel, in: RoundedRectangle(cornerRadius: 18))
                     }.buttonStyle(.plain)
                     Spacer(minLength: 0)
-                    }
-                    .padding(.horizontal, 18)
-                    .padding(.bottom, 20)
-                    .frame(maxWidth: 1100)
-                    .frame(maxWidth: .infinity)
-                    .frame(minHeight: proxy.size.height, alignment: .top)
                 }
+                .padding(.horizontal, 18)
             }
-            .background(Palette.background.ignoresSafeArea()).foregroundStyle(Palette.cream)
+            .background(Palette.background).foregroundStyle(Palette.cream)
             #if os(iOS)
             .toolbar(.hidden, for: .navigationBar)
             #endif
