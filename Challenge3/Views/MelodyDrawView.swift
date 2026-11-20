@@ -14,6 +14,10 @@ struct MelodyDrawView: View {
     @State private var canvasSize: CGSize = .zero
     @State private var playbackTask: Task<Void, Never>?
     @State private var playSession = UUID()
+    @State private var selectedKey = 0
+
+    private static let keyNames = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"]
+    private static let majorScale: Set<Int> = [0, 2, 4, 5, 7, 9, 11]
 
     var body: some View {
         GeometryReader { proxy in
@@ -32,16 +36,6 @@ struct MelodyDrawView: View {
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button("Clear") {
-                    stopPlayback()
-                    strokes.removeAll()
-                    currentStroke = nil
-                }
-                .disabled(strokes.isEmpty && currentStroke == nil)
-            }
-        }
         .onAppear {
             requestLandscape()
         }
@@ -109,6 +103,29 @@ struct MelodyDrawView: View {
             }
             .padding(.horizontal, 12)
             .padding(.top, 8)
+
+            HStack(spacing: 10) {
+                Text("Key")
+                    .font(.caption.bold())
+                    .foregroundStyle(Palette.muted)
+                Menu {
+                    ForEach(0..<Self.keyNames.count, id: \.self) { index in
+                        Button(Self.keyNames[index]) { selectedKey = index }
+                    }
+                } label: {
+                    Label(Self.keyNames[selectedKey], systemImage: "tuningfork")
+                        .font(.subheadline.bold())
+                        .padding(.horizontal, 10).padding(.vertical, 6)
+                        .background(Palette.panel, in: Capsule())
+                        .overlay(Capsule().stroke(Palette.accent.opacity(0.35)))
+                }
+                .tint(Palette.cream)
+                Spacer()
+                Text("Notes in \(Self.keyNames[selectedKey]) major")
+                    .font(.caption2)
+                    .foregroundStyle(Palette.muted)
+            }
+            .padding(.horizontal, 16)
 
             HStack(spacing: 12) {
                 Button {
@@ -253,9 +270,19 @@ struct MelodyDrawView: View {
         let avgY = stroke.points.map(\.y).reduce(0, +) / CGFloat(max(1, stroke.points.count))
         let height = max(size.height, 1)
         let normalized = min(max(avgY / height, 0), 1)
-        // Higher on screen => higher pitch.
-        let midi = Int(round(76 - Double(normalized) * 24))
-        return (max(52, min(81, midi)), duration)
+        // Higher on screen => higher pitch, restricted to the selected key.
+        let notes = allowedNotes()
+        guard !notes.isEmpty else { return (60, duration) }
+        let index = Int(round((1.0 - Double(normalized)) * Double(notes.count - 1)))
+        let midi = notes[min(max(index, 0), notes.count - 1)]
+        return (midi, duration)
+    }
+
+    /// MIDI notes available in the selected key (major scale) over the playable range.
+    private func allowedNotes() -> [Int] {
+        (52...81).filter { midi in
+            Self.majorScale.contains(((midi - selectedKey) % 12 + 12) % 12)
+        }
     }
 
     /// Horizontal anchor used to order strokes from left to right.
