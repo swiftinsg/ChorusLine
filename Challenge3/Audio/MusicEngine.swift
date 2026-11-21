@@ -85,7 +85,7 @@ final class MusicEngine: ObservableObject {
         }
         player.scheduleBuffer(buffer, completionHandler: nil)
     }
-    func playBeat(_ steps: [[Int]], bpm: Double = 105) {
+    func playBeat(_ steps: [[Int]], bpm: Double = 105, gain: Double = 1.0) {
         guard running else { return }
         let sampleRate = 44100.0
         let secondsPerStep = 60.0 / bpm / 2.0
@@ -103,12 +103,13 @@ final class MusicEngine: ObservableObject {
             for hit in hits {
                 signal += drumSample(hit: hit, local: local, index: i)
             }
+            signal *= gain
             let value = Float(max(-0.95, min(0.95, signal)))
             left[i] = value; right[i] = value
         }
         player.scheduleBuffer(buffer, completionHandler: nil)
     }
-    func playSong(progression: Progression, beat: BeatPattern, bpm: Double = 108) {
+    func playSong(progression: Progression, beat: BeatPattern, bpm: Double = 108, drumGain: Double = 1.0) {
         guard running else { return }
         stop()
         let rate = 44100.0
@@ -138,6 +139,7 @@ final class MusicEngine: ObservableObject {
             for hit in hits {
                 drums += drumSample(hit: hit, local: local, index: i)
             }
+            drums *= drumGain
             let value = Float(max(-0.95, min(0.95, chord + drums)))
             channels[0][i] = value
             channels[1][i] = value

@@ -86,7 +86,7 @@ struct SandboxView: View {
                     ForEach(beats) { beat in
                         Button(beat.name) {
                             chosenBeat = beat.id
-                            audio.stop(); audio.playBeat(beat.steps)
+                            audio.stop(); audio.playBeat(beat.steps, gain: 0.35)
                         }.frame(maxWidth: .infinity).padding(15)
                             .background(chosenBeat == beat.id ? Palette.gold.opacity(0.45) : Palette.panel, in: RoundedRectangle(cornerRadius: 12))
                     }
@@ -112,7 +112,7 @@ struct SandboxView: View {
                 if saved {
                     Label("Saved to your song library!", systemImage: "checkmark.circle.fill").foregroundStyle(.green)
                     PrimaryAction(title: "▶ Play Your Song", tint: Palette.gold) {
-                        audio.playSong(progression: customProgression(), beat: beats[chosenBeat], bpm: bpm)
+                        audio.playSong(progression: customProgression(), beat: beats[chosenBeat], bpm: bpm, drumGain: 0.35)
                     }
                 }
                 NavigationLink("View Saved Songs", destination: SongLibraryView())

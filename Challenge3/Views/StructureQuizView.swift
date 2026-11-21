@@ -33,6 +33,7 @@ struct StructureQuiz: View {
 
             GeometryReader { geo in
                 let vinylSize = min(260, max(180, geo.size.width - 20))
+                let hitSize = min(geo.size.width, 280, vinylSize + 80)
                 ZStack {
                     Vinyl(color: Palette.accent, size: vinylSize, showCenterDot: false, showsRimMark: true)
                         .rotationEffect(.degrees(rotation))
@@ -59,19 +60,20 @@ struct StructureQuiz: View {
                         FlyingMusicNote(particle: note)
                     }
                 }
+                .frame(width: hitSize, height: hitSize)
+                .modifier(CircularVinylGesture(diameter: hitSize) { direction in
+                    guard !isAdvancing else { return }
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) { rotation += Double(direction) * 65 }
+                    selected = (selected + direction + 4) % 4
+                    spawnFlyingNotes()
+                    #if os(iOS)
+                    UISelectionFeedbackGenerator().selectionChanged()
+                    #endif
+                    revealed = false
+                    withAnimation(.easeOut(duration: 0.15)) { feedback = "" }
+                    showCorrect = false
+                })
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .modifier(CircularVinylGesture(diameter: vinylSize) { direction in
-                guard !isAdvancing else { return }
-                withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) { rotation += Double(direction) * 65 }
-                selected = (selected + direction + 4) % 4
-                spawnFlyingNotes()
-                #if os(iOS)
-                UISelectionFeedbackGenerator().selectionChanged()
-                #endif
-                revealed = false
-                withAnimation(.easeOut(duration: 0.15)) { feedback = "" }
-                showCorrect = false
-            })
             }
             .frame(height: 280)
 

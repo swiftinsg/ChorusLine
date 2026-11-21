@@ -17,7 +17,7 @@ struct StructureView: View {
         if quiz {
             StructureQuiz().environmentObject(state)
         } else {
-            LessonSlideshow(moduleTitle: "SONG STRUCTURE", accent: Palette.accent, slides: slides, showsSwipeHint: true) {
+            LessonSlideshow(moduleTitle: "SONG STRUCTURE", accent: Palette.accent, slides: slides, showsSwipeHint: state.showModuleSpinHint) {
                 quiz = true
             }
         }

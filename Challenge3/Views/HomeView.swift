@@ -140,6 +140,7 @@ struct HomeView: View {
     }
     private func openModule(_ index: Int) {
         guard openingModule == nil && finishingModule == nil else { return }
+        state.beginModule(index)
         openingModule = index
         openingStage = 0
         #if os(iOS)
