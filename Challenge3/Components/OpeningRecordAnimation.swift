@@ -1,6 +1,7 @@
 import SwiftUI
 
 /// Transition shown while a module is opening.
+/// `stage` drives the scale/rotation animation; a reserved vinyl frame keeps text from clipping.
 struct OpeningRecordAnimation: View {
     let color: Color
     let stage: Int
@@ -17,6 +18,7 @@ struct OpeningRecordAnimation: View {
                         .font(.headline)
                         .tracking(4)
                         .foregroundStyle(accent)
+                    // Stage 0: smaller/starting pose. Stage 1+: enlarged "needle drop" pose.
                     Vinyl(color: color, spinning: true, size: baseSize)
                         .scaleEffect(stage == 0 ? 0.48 : maxScale)
                         .rotationEffect(.degrees(stage == 0 ? 0 : 110))

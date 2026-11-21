@@ -1,6 +1,7 @@
 import SwiftUI
 
 /// Module 1: walks through the sections of a song before the quiz.
+/// Flow: lesson slideshow -> structure quiz (within this view).
 struct StructureView: View {
     @EnvironmentObject var state: StudioState
     @State private var quiz = false

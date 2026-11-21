@@ -17,6 +17,7 @@ struct MelodyDrawView: View {
     @State private var selectedKey = 0
 
     private static let keyNames = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"]
+    // Pitch classes allowed in the selected major key; used to quantize drawn note pitches.
     private static let majorScale: Set<Int> = [0, 2, 4, 5, 7, 9, 11]
 
     var body: some View {
@@ -229,6 +230,8 @@ struct MelodyDrawView: View {
     }
 
     /// Plays all drawn strokes in order from left to right.
+    /// `MusicEngine.playTone` schedules audio immediately, so playback timing is controlled here with sleeps.
+    /// A `playSession` token prevents stale tasks from mutating state after stop/replay.
     private func playAllStrokes() {
         guard !strokes.isEmpty, !isPlaying else { return }
         stopPlayback()

@@ -1,6 +1,9 @@
 import SwiftUI
 
 /// A record that can spin to show that a module has been completed.
+/// - `spinning`: continuously rotates the record (used for loading/completion states).
+/// - `showsRimMark`: adds a visible edge highlight so rotation is easier to perceive.
+/// - Local animation state (`dropped`, `rotation`) handles the "needle drop" and spin effects.
 struct Vinyl: View {
     var color: Color = Palette.accent
     var spinning = false

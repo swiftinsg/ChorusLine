@@ -4,11 +4,14 @@ import Combine
 // MARK: - Audio synthesizer (no external sound files needed)
 
 /// Synthesises chords, drum patterns and full song previews in real time.
+/// Audio is generated into PCM buffers (no bundled sample files) and scheduled on an `AVAudioPlayerNode`.
 final class MusicEngine: ObservableObject {
     private let engine = AVAudioEngine()
     private let player = AVAudioPlayerNode()
     private let format = AVAudioFormat(standardFormatWithSampleRate: 44100, channels: 2)!
     private var running = false
+
+    /// Sets up and starts the audio engine once; playback methods no-op if startup fails.
     init() {
         engine.attach(player)
         engine.connect(player, to: engine.mainMixerNode, format: format)
@@ -85,6 +88,7 @@ final class MusicEngine: ObservableObject {
         }
         player.scheduleBuffer(buffer, completionHandler: nil)
     }
+    /// Renders and plays an 8-step drum pattern once. `gain` scales drum amplitude (used by sandbox).
     func playBeat(_ steps: [[Int]], bpm: Double = 105, gain: Double = 1.0) {
         guard running else { return }
         let sampleRate = 44100.0
@@ -109,6 +113,7 @@ final class MusicEngine: ObservableObject {
         }
         player.scheduleBuffer(buffer, completionHandler: nil)
     }
+    /// Renders a simple 4-bar song preview (chords + drums) as one buffer. `drumGain` balances drum level.
     func playSong(progression: Progression, beat: BeatPattern, bpm: Double = 108, drumGain: Double = 1.0) {
         guard running else { return }
         stop()
@@ -146,6 +151,7 @@ final class MusicEngine: ObservableObject {
         }
         player.scheduleBuffer(buffer, completionHandler: nil)
     }
+    /// Stops current playback; restarting the node allows future buffers to play immediately.
     func stop() { player.stop(); player.play() }
 
     // MARK: - Drum synthesis

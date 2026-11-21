@@ -16,9 +16,11 @@ struct LessonSlideshow: View {
     let moduleTitle: String
     let accent: Color
     let slides: [LessonSlide]
+    /// When true, shows a hint above the vinyl (used for first-time onboarding in lesson modules).
     var showsSwipeHint = false
     let onFinish: () -> Void
 
+    // Slide/page state and gesture-driven animation values for the vinyl "record turn".
     @State private var page = 0
     @State private var spin = 0.0
     @State private var drag: CGFloat = 0
@@ -27,6 +29,7 @@ struct LessonSlideshow: View {
     @State private var movingForward = true
     @State private var introScale = 0.6
 
+    /// Horizontal drag distance required to commit a page turn / finish action.
     private let threshold: CGFloat = 64
 
     var body: some View {

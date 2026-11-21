@@ -37,6 +37,7 @@ enum Palette {
     /// Muted secondary text.
     static let muted = Color.secondary
 
+    /// Resolves a color appropriate for the current interface style on supported platforms.
     private static func dynamic(light: UIColor, dark: UIColor) -> Color {
         #if canImport(UIKit)
         Color(UIColor { traits in

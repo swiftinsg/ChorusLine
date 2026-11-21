@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+/// Default Xcode template view (not used by the app's main navigation flow).
 struct ContentView: View {
     var body: some View {
         VStack {

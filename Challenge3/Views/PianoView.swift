@@ -14,9 +14,11 @@ struct PianoView: View {
     @State private var transposeOffset = 0
     @State private var bpm: Double = 100
     private static let keyNames = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"]
+    // Pitch classes (0=C ... 11=B) that belong to a natural major scale.
     private static let majorScale: Set<Int> = [0, 2, 4, 5, 7, 9, 11]
 
-    /// Progressions whose chords are all diatonic to the selected song key.
+    /// Progressions whose chords are all diatonic to the selected song key (major scale).
+    /// Filtering is based on MIDI note pitch classes in the progression data.
     private var filteredProgressions: [Progression] {
         progressions.filter { progression in
             progression.notes.allSatisfy { chord in
@@ -201,6 +203,7 @@ struct PianoView: View {
     }
 
     /// Updates the selected song key and keeps the chosen progression valid.
+    /// In this view, selecting a key uses progressions in that key directly (no extra transpose offset).
     private func selectKey(_ index: Int) {
         selectedKey = index
         lastKey = Self.keyNames[index]
@@ -213,7 +216,8 @@ struct PianoView: View {
         }
     }
 
-    /// Transposes the chosen progression so it is rooted on `root` without playing it.
+    /// Sets the song key from a tapped piano note (C4..B4) and keeps the progression list valid.
+    /// This changes key/filtering without auto-playing the progression.
     private func transpose(to root: Int) {
         selectedKey = ((root - 60) % 12 + 12) % 12
         lastKey = Self.keyNames[selectedKey]

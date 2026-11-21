@@ -1,6 +1,8 @@
 import Foundation
 
 /// A four-chord progression with the notes used to synthesise it.
+/// - `chords`: display labels for each chord.
+/// - `notes`: MIDI note numbers per chord (one array per bar/chord step), used by `MusicEngine`.
 struct Progression: Identifiable {
     let id: Int
     let name: String

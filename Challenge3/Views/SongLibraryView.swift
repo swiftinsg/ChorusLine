@@ -35,6 +35,7 @@ struct SongLibraryView: View {
         .navigationTitle("My Songs").onDisappear { audio.stop() }
     }
 
+    /// Plays a saved idea using custom chord notes when available; falls back to legacy preset progression IDs.
     private func play(_ song: SongIdea) {
         guard let beat = beats[safe: song.beat] else { return }
         if let notes = song.chordNotes, !notes.isEmpty {

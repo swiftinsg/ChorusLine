@@ -1,6 +1,7 @@
 import SwiftUI
 
 /// Entry point for the melody drawing experience.
+/// Despite the historical name, this screen now opens the drawing canvas rather than recording audio.
 struct MelodyRecorderView: View {
     @EnvironmentObject var state: StudioState
     @Environment(\.dismiss) private var dismiss
@@ -31,6 +32,7 @@ struct MelodyRecorderView: View {
             Spacer()
             PrimaryAction(title: "Done — Complete Module") {
                 state.finish(3)
+                // Delay dismissal so the home-screen completion animation can play.
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2.7) { dismiss() }
             }
         }

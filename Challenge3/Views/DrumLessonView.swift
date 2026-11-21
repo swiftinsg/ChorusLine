@@ -1,6 +1,7 @@
 import SwiftUI
 
 /// Module 3: introduces rhythm, then opens the drum pads.
+/// Flow: lesson slideshow -> interactive `DrumPadsView`.
 struct DrumLessonView: View {
     @EnvironmentObject var state: StudioState
     @State private var showPads = false

@@ -2,6 +2,8 @@ import AVFoundation
 import Combine
 
 /// Records and plays back a hummed melody.
+/// Note: this recorder utility is available in the codebase, but the current melody module flow
+/// primarily uses the drawing canvas (`MelodyDrawView`) for melody creation.
 final class VoiceRecorder: NSObject, ObservableObject, AVAudioRecorderDelegate {
     @Published var isRecording = false
     @Published var hasRecording = false

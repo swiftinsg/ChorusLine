@@ -1,6 +1,7 @@
 import SwiftUI
 
 /// A panel containing a lesson heading and its explanation.
+/// Used by `LessonSlideshow` to present each lesson slide's content consistently.
 struct LessonCard: View {
     let title: String
     let description: String

@@ -17,9 +17,11 @@ struct SandboxView: View {
     @State private var bpm: Double = 100
     @State private var saved = false
     private static let keyNames = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"]
+    // Pitch classes (0=C ... 11=B) that belong to a natural major scale.
     private static let majorScale: Set<Int> = [0, 2, 4, 5, 7, 9, 11]
 
-    /// Progressions whose chords are all diatonic to the selected song key.
+    /// Progressions whose chords are all diatonic to the selected song key (major scale).
+    /// Filtering is based on MIDI note pitch classes in the progression data.
     private var filteredProgressions: [Progression] {
         progressions.filter { progression in
             progression.notes.allSatisfy { chord in
@@ -86,7 +88,9 @@ struct SandboxView: View {
                     ForEach(beats) { beat in
                         Button(beat.name) {
                             chosenBeat = beat.id
-                            audio.stop(); audio.playBeat(beat.steps, gain: 0.35)
+                            audio.stop()
+                            // Preview with reduced drum gain so beats sit closer to melody/chord levels.
+                            audio.playBeat(beat.steps, gain: 0.35)
                         }.frame(maxWidth: .infinity).padding(15)
                             .background(chosenBeat == beat.id ? Palette.gold.opacity(0.45) : Palette.panel, in: RoundedRectangle(cornerRadius: 12))
                     }
@@ -97,6 +101,7 @@ struct SandboxView: View {
                 Text("Your current chord progression, key, tempo and drum choice will be saved in this song idea. You can add your recorded melody from Module 4 separately.")
                     .font(.subheadline).foregroundStyle(Palette.muted)
                 PrimaryAction(title: "Save Song Idea", tint: Palette.gold) {
+                    // Save the user's actual current chord notes/tempo/beat so playback matches what they heard.
                     let idea = SongIdea(
                         title: songName,
                         progression: chosenProgression,
@@ -112,6 +117,7 @@ struct SandboxView: View {
                 if saved {
                     Label("Saved to your song library!", systemImage: "checkmark.circle.fill").foregroundStyle(.green)
                     PrimaryAction(title: "▶ Play Your Song", tint: Palette.gold) {
+                        // Use reduced drum gain in the combined preview for better balance.
                         audio.playSong(progression: customProgression(), beat: beats[chosenBeat], bpm: bpm, drumGain: 0.35)
                     }
                 }

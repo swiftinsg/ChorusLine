@@ -1,6 +1,7 @@
 import SwiftUI
 
-/// Module 4: melody tips, followed by hum recording.
+/// Module 4: melody tips, followed by the melody drawing experience.
+/// Flow: lesson slideshow -> `MelodyRecorderView` (entry screen) -> `MelodyDrawView` canvas.
 struct MelodyView: View {
     @EnvironmentObject var state: StudioState
     @State private var recording = false

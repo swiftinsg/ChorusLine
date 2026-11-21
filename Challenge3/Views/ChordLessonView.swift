@@ -1,6 +1,7 @@
 import SwiftUI
 
 /// Module 2: introduces chords and progressions, then opens the piano.
+/// Flow: lesson slideshow -> interactive `PianoView`.
 struct ChordLessonView: View {
     @EnvironmentObject var state: StudioState
     @State private var showPiano = false

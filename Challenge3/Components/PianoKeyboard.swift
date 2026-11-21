@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// A one-octave piano keyboard. Pressing a key reports its MIDI note so the
-/// caller can respond (for example, to transpose a chord progression).
+/// A one-octave piano keyboard (C4–B4, MIDI 60–71). Pressing a key reports its MIDI note so the
+/// caller can respond (for example, to select/transpose a song key) without the keyboard playing audio itself.
 struct PianoKeyboard: View {
     let onNote: (Int) -> Void
 
@@ -26,6 +26,7 @@ struct PianoKeyboard: View {
 
     var body: some View {
         GeometryReader { proxy in
+            // White keys divide the width evenly; black keys are narrower and positioned between them.
             let whiteWidth = proxy.size.width / CGFloat(whiteKeys.count)
             let blackWidth = whiteWidth * 0.62
             let blackHeight = proxy.size.height * 0.62

@@ -1,6 +1,7 @@
 import SwiftUI
 
 /// Plays the six built-in drum patterns.
+/// Selecting a pad previews the beat, updates shared `selectedBeat`, and highlights the active pad.
 struct DrumPadsView: View {
     @EnvironmentObject var state: StudioState
     @Environment(\.dismiss) private var dismiss

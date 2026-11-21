@@ -4,6 +4,7 @@ import UIKit
 #endif
 
 /// Quiz shown at the end of Module 1.
+/// The user spins the vinyl to cycle answers, checks the selection, then advances through questions.
 struct StructureQuiz: View {
     @EnvironmentObject var state: StudioState
     @Environment(\.dismiss) private var dismiss
@@ -16,6 +17,7 @@ struct StructureQuiz: View {
     @State private var showCorrect = false
     @State private var isAdvancing = false
     @State private var flyingNotes: [NoteParticle] = []
+    // Each question: (prompt, answer options, index of correct option).
     private let questions: [(String, [String], Int)] = [
         ("Which section usually contains the main repeated hook?", ["Verse", "Chorus", "Bridge", "Outro"], 1),
         ("What does a pre-chorus typically do?", ["End the song", "Introduce credits", "Build into the chorus", "Replace the beat"], 2),
@@ -33,6 +35,7 @@ struct StructureQuiz: View {
 
             GeometryReader { geo in
                 let vinylSize = min(260, max(180, geo.size.width - 20))
+                // Use a larger interaction area than the visible vinyl so it can be spun from a larger radius.
                 let hitSize = min(geo.size.width, 280, vinylSize + 80)
                 ZStack {
                     Vinyl(color: Palette.accent, size: vinylSize, showCenterDot: false, showsRimMark: true)

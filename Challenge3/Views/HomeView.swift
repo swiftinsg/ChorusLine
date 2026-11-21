@@ -4,12 +4,16 @@ import UIKit
 #endif
 
 /// The main menu listing the four lesson modules and the sandbox.
+/// Also owns shared app state (`StudioState`) and presents opening/completion vinyl animations.
 struct HomeView: View {
     @StateObject private var state = StudioState()
+    // Completion overlay state driven by `state.completionEvent`.
     @State private var finishingModule: Int? = nil
     @State private var completionStage = 0
+    // Opening overlay state shown before pushing a destination.
     @State private var openingModule: Int? = nil
     @State private var openingStage = 0
+    // Navigation path uses integer route IDs (see `navigationDestination`).
     @State private var path: [Int] = []
     private let titles = ["Song Structure", "Chord Progression", "Drum Beats", "Melody"]
     private let colors: [Color] = Array(repeating: Palette.accent, count: 4)
@@ -87,6 +91,7 @@ struct HomeView: View {
             .toolbar(.hidden, for: .navigationBar)
             #endif
             .navigationDestination(for: Int.self) { index in
+                // Route IDs: 0-3 lesson modules, 4 sandbox, 5 saved songs/library.
                 Group {
                     switch index {
                     case 0: StructureView()
@@ -138,6 +143,7 @@ struct HomeView: View {
             }
         }
     }
+    /// Plays the opening animation, sets one-time hint state, then navigates to the module.
     private func openModule(_ index: Int) {
         guard openingModule == nil && finishingModule == nil else { return }
         state.beginModule(index)

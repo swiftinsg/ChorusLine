@@ -1,6 +1,7 @@
 import SwiftUI
 
 // A record drops onto a turntable seen from directly above when a module is finished.
+// `stage` progresses the drop/spin sequence: settling -> seated -> spinning/complete message.
 struct RecordPlayerCompletion: View {
     let color: Color
     let stage: Int

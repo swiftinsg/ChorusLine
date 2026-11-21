@@ -1,6 +1,7 @@
 import Foundation
 
 /// A saved combination of song title, chord progression and drum beat.
+/// New saves store `chordNotes`/`bpm`; older saves may only have a legacy `progression` index.
 struct SongIdea: Codable, Identifiable {
     var id = UUID()
     let title: String
@@ -39,13 +40,15 @@ struct SongIdea: Codable, Identifiable {
     }
 }
 
-/// Persists song ideas in `UserDefaults`.
+/// Persists song ideas in `UserDefaults` as JSON under `SongLibrary.key`.
 enum SongLibrary {
     static let key = "vinylStudioSongs"
+    /// Loads saved ideas newest-first as stored. Returns an empty array if nothing is saved or decoding fails.
     static func load() -> [SongIdea] {
         guard let data = UserDefaults.standard.data(forKey: key) else { return [] }
         return (try? JSONDecoder().decode([SongIdea].self, from: data)) ?? []
     }
+    /// Inserts a new idea at the front and writes the full list back to UserDefaults.
     static func save(_ song: SongIdea) {
         var songs = load(); songs.insert(song, at: 0)
         if let data = try? JSONEncoder().encode(songs) { UserDefaults.standard.set(data, forKey: key) }

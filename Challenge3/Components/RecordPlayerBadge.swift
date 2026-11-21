@@ -1,6 +1,7 @@
 import SwiftUI
 
 /// A top-down miniature turntable used to mark a completed module on the menu.
+/// The record "drops" onto the platter on appear to mirror the completion animation.
 struct RecordPlayerBadge: View {
     let color: Color
     var size: CGFloat = 100
