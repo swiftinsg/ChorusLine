@@ -15,7 +15,9 @@
 //     after 3.2 s.
 //   • openModule(_:) — ignores taps during animations, tells StudioState the
 //     module began, then fades the menu away while the card's vinyl expands
-//     down to the bottom edge before pushing the matching route.
+//     down to the bottom edge before pushing the matching route. Routes are
+//     pushed without the default right-edge slide. The sandbox skips the vinyl
+//     transition and opens directly.
 // -----------------------------------------------------------------------------
 
 // Import SwiftUI so the file can use View, NavigationStack, Color, and other SwiftUI types.
@@ -332,6 +334,11 @@ struct HomeView: View {
         let frame = CGRect(x: measured.midX - side / 2, y: measured.midY - side / 2, width: side, height: side)
         // Record in shared state that the user entered this module so progress can be tracked.
         state.beginModule(index)
+        // The sandbox opens directly: no vinyl flight, no loading state and no delayed push.
+        if index == 4 {
+            pushWithoutSlide(index)
+            return
+        }
         // Set the module for the opening overlay so it knows which color to use.
         openingModule = index
         // Store the captured card frame as the transition's starting pose.
@@ -352,8 +359,8 @@ struct HomeView: View {
         withAnimation(.spring(response: 0.62, dampingFraction: 0.84)) { openingStage = 1 }
         // Push the module as the vinyl reaches its landing pose instead of making it wait on the menu.
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.58) {
-            // Append the module index to the NavigationStack path to push the matching destination.
-            path.append(index)
+            // Push the matching destination without the default slide-in-from-right animation.
+            pushWithoutSlide(index)
         }
         // Remove the overlay once the new view is on screen.
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.78) {
@@ -362,5 +369,14 @@ struct HomeView: View {
             // Make the home menu opaque again for whenever the user navigates back.
             coverOpacity = 1
         }
+    }
+
+    // Push a route instantly so a module never slides in from the right edge.
+    private func pushWithoutSlide(_ index: Int) {
+        // Disable animations for this path change only, leaving other transitions intact.
+        var transaction = Transaction()
+        transaction.disablesAnimations = true
+        // Apply the animation-free path update.
+        withTransaction(transaction) { path.append(index) }
     }
 }

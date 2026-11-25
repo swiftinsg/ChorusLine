@@ -12,7 +12,7 @@ The home screen shows:
 - **Sandbox** (combine ideas into a song)
 - **Saved Songs** (view and replay saved song ideas)
 
-Tap a module to open it. Its vinyl expands and travels straight from the home card to the bottom edge of the screen—there is no loading screen. Completed modules are marked on the home screen.
+Tap a lesson to open it. Its vinyl expands and travels straight from the home card to the bottom edge of the screen—there is no loading screen. The Sandbox opens directly with no vinyl animation. Completed modules are marked on the home screen.
 
 ## Modules
 
