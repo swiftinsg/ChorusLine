@@ -65,7 +65,7 @@ struct MelodyRecorderView: View {
             // Push the completion button to the bottom of the available space.
             Spacer()
             // Mark the melody module complete, then dismiss after a short delay so feedback can be seen.
-            PrimaryAction(title: "Done — Complete Module") {
+            PrimaryAction(title: "Done") {
                 // Record module 3 as finished in the shared app state.
                 state.finish(3)
                 // Wait briefly before dismissing so the completion animation is visible.

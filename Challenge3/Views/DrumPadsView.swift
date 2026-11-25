@@ -66,7 +66,7 @@ struct DrumPadsView: View {
             // Push the Done button toward the bottom of the scrollable content.
             Spacer()
             // Finish the module, then dismiss after a short delay so completion feedback can be seen.
-            PrimaryAction(title: "Done — Complete Module") { audio.stop(); state.finish(2); DispatchQueue.main.asyncAfter(deadline: .now() + 2.7) { dismiss() } }
+            PrimaryAction(title: "Done") { audio.stop(); state.finish(2); DispatchQueue.main.asyncAfter(deadline: .now() + 2.7) { dismiss() } }
         // Pad the whole stack so its contents don't touch the screen edges.
         }.padding() }.modifier(LessonBackground()).onDisappear { audio.stop() }
     }

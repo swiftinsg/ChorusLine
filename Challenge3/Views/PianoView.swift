@@ -172,7 +172,7 @@ struct PianoView: View {
             Spacer(minLength: 0)
 
             // Offer the button that completes this module and leaves the screen.
-            PrimaryAction(title: "Done — Complete Module") {
+            PrimaryAction(title: "Done") {
                 // Silence any chord that is still ringing before navigating away.
                 audio.stop()
                 // Record module 1 as finished in the shared progress state.

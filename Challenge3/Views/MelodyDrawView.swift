@@ -107,6 +107,7 @@ struct MelodyDrawView: View {
         .onDisappear {
             // Cancel playback and silence the audio engine before leaving.
             stopPlayback()
+            restorePortrait()
         }
     }
 
@@ -160,7 +161,7 @@ struct MelodyDrawView: View {
                         )
 
                     // Use SwiftUI's Canvas to render strokes with custom glow effects.
-                    Canvas { context, canvasSize in
+                    Canvas { context, _ in
                         // Loop over committed strokes so each one is drawn once.
                         for stroke in strokes {
                             // Render this committed stroke into the graphics context.
@@ -172,6 +173,8 @@ struct MelodyDrawView: View {
                             draw(stroke, in: &context)
                         }
                     }
+                    // Ensure the full canvas area receives touch input for drawing.
+                    .contentShape(Rectangle())
                     // Attach the drag gesture that records touch points in canvas coordinates.
                     .gesture(dragGesture(canvasSize: canvasGeo.size))
                     // Clip any drawing that extends outside the rounded canvas area.
@@ -301,7 +304,7 @@ struct MelodyDrawView: View {
             .padding(.horizontal, 16)
 
             // Provide the completion button that marks module 3 as finished.
-            PrimaryAction(title: "Done — Complete Module") {
+            PrimaryAction(title: "Done") {
                 // Silence audio before leaving the module.
                 stopPlayback()
                 // Record completion of module 3 in the shared app state.
@@ -581,18 +584,32 @@ struct MelodyDrawView: View {
 
     // Ask the system to rotate the window to landscape so drawing has enough room.
     private func requestLandscape() {
-        // Orientation requests are available only on iOS.
         #if os(iOS)
-        // Find the active window scene needed to request a geometry update.
+        AppDelegate.orientationLock = .landscape
         guard let scene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first else { return }
-        // The geometry-update API exists only on iOS 16 and later.
         if #available(iOS 16.0, *) {
-            // Build a preference object requesting landscape interface orientation.
-            let prefs = UIWindowScene.GeometryPreferences.iOS(interfaceOrientations: .landscape)
-            // Send the preference to the window scene to trigger rotation.
-            scene.requestGeometryUpdate(prefs)
+            scene.requestGeometryUpdate(.iOS(interfaceOrientations: .landscape))
+            scene.keyWindow?.rootViewController?.setNeedsUpdateOfSupportedInterfaceOrientations()
+        } else {
+            UIDevice.current.setValue(UIInterfaceOrientation.landscapeRight.rawValue, forKey: "orientation")
+            UINavigationController.attemptRotationToDeviceOrientation()
         }
-        // End of the iOS-only orientation code.
+        #endif
+    }
+
+    /// Restore the default orientation lock when leaving the melody canvas.
+    private func restorePortrait() {
+        #if os(iOS)
+        AppDelegate.orientationLock = AppDelegate.defaultOrientationLock
+        guard let scene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first else { return }
+        let orientations: UIInterfaceOrientationMask = AppDelegate.defaultOrientationLock == .all ? .all : .portrait
+        if #available(iOS 16.0, *) {
+            scene.requestGeometryUpdate(.iOS(interfaceOrientations: orientations))
+            scene.keyWindow?.rootViewController?.setNeedsUpdateOfSupportedInterfaceOrientations()
+        } else {
+            UIDevice.current.setValue(UIInterfaceOrientation.portrait.rawValue, forKey: "orientation")
+            UINavigationController.attemptRotationToDeviceOrientation()
+        }
         #endif
     }
 }
