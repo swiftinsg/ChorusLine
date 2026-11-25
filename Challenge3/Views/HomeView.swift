@@ -35,10 +35,12 @@ struct HomeView: View {
     @State private var finishingModule: Int? = nil
     // @State drives the step of the completion animation so SwiftUI redraws when the stage changes.
     @State private var completionStage = 0
-    // @State tracks which module is currently showing its opening-record animation.
+    // Tracks which module is currently opening so taps are ignored during navigation transition.
     @State private var openingModule: Int? = nil
-    // @State drives the opening animation stage, letting separate phases animate independently.
-    @State private var openingStage = 0
+    // Stores frames for menu vinyls so an opening vinyl can animate from menu to lesson position.
+    @State private var moduleFrames: [Int: CGRect] = [:]
+    // Drives the menu-to-lesson vinyl transition progress.
+    @State private var openingProgress: CGFloat = 0
     // @State holds the NavigationStack's integer route path, where each number maps to a destination view.
     @State private var path: [Int] = []
     // Store the four lesson titles used for the grid buttons' labels.
@@ -52,6 +54,7 @@ struct HomeView: View {
     ]
     // Build the view hierarchy; SwiftUI calls this whenever observed state changes.
     var body: some View {
+        ZStack {
         // Wrap the menu in a stack driven by $path so appending an integer pushes the matching lesson view.
         NavigationStack(path: $path) {
             // Read the available size so the layout can shrink on short screens.
@@ -83,9 +86,17 @@ struct HomeView: View {
                                     if state.completed.contains(index) {
                                         // Show a record-player badge for completed lessons to signal achievement.
                                         RecordPlayerBadge(color: colors[index], size: vinylSize)
+                                            .opacity(openingModule == index ? 0 : 1)
+                                            .background(GeometryReader { geo in
+                                                Color.clear.preference(key: ModuleFrameKey.self, value: [index: geo.frame(in: .named("menu"))])
+                                            })
                                     } else {
                                         // Show the plain artwork for lessons that have not been completed yet.
                                         Vinyl(color: colors[index], size: vinylSize, showsGlow: false)
+                                            .opacity(openingModule == index ? 0 : 1)
+                                            .background(GeometryReader { geo in
+                                                Color.clear.preference(key: ModuleFrameKey.self, value: [index: geo.frame(in: .named("menu"))])
+                                            })
                                     }
                                     // Show the lesson name from the titles array with bold, size-adaptive typography.
                                     Text(titles[index]).font(.system(size: compact ? 13 : 15, weight: .bold))
@@ -117,9 +128,15 @@ struct HomeView: View {
                             if state.completed.contains(4) {
                                 // Show a gold record-player badge for a completed sandbox.
                                 RecordPlayerBadge(color: Palette.gold, size: vinylSize * 0.8, accent: Palette.gold)
+                                    .background(GeometryReader { geo in
+                                        Color.clear.preference(key: ModuleFrameKey.self, value: [4: geo.frame(in: .named("menu"))])
+                                    })
                             } else {
                                 // Otherwise fall back to the incomplete artwork.
                                 Vinyl(color: Palette.gold, size: vinylSize * 0.8, showsGlow: false)
+                                    .background(GeometryReader { geo in
+                                        Color.clear.preference(key: ModuleFrameKey.self, value: [4: geo.frame(in: .named("menu"))])
+                                    })
                             }
                             // Label the sandbox button so users know it is the free-play area.
                             Text("Sandbox")
@@ -175,6 +192,10 @@ struct HomeView: View {
                 // Inset the whole menu from the screen edges.
                 .padding(.horizontal, 18)
             }
+            .coordinateSpace(name: "menu")
+            .onPreferenceChange(ModuleFrameKey.self) { frames in
+                moduleFrames.merge(frames) { _, new in new }
+            }
             // Apply the app background and default cream text color to the menu.
             .background(Palette.background).foregroundStyle(Palette.cream)
             // Only apply the toolbar setting when compiling for iOS.
@@ -212,20 +233,6 @@ struct HomeView: View {
         .tint(Palette.accent)
         // Layer transition animations above the menu without changing its layout.
         .overlay {
-            // Show the opening animation only while an opening module is set.
-            if let module = openingModule {
-                // Draw the animated record that plays before a module opens.
-                OpeningRecordAnimation(
-                    // Use gold for the sandbox, the lesson color for valid indexes, and the accent color as a safe fallback.
-                    color: module == 4 ? Palette.gold : (colors.indices.contains(module) ? colors[module] : Palette.accent),
-                    // Pass the current opening stage so the animation can advance through its phases.
-                    stage: openingStage,
-                    // Use gold accents for the sandbox and the normal accent for lessons.
-                    accent: module == 4 ? Palette.gold : Palette.accent
-                )
-                // Fade the overlay in and out while letting it receive taps during the animation.
-                .transition(.opacity).allowsHitTesting(true)
-            }
             // Show the completion animation only while a finishing module is set.
             if let module = finishingModule {
                 // Draw the record-player celebration shown after a module is finished.
@@ -240,6 +247,21 @@ struct HomeView: View {
                 // Fade the celebration in and out while allowing interaction.
                 .transition(.opacity).allowsHitTesting(true)
             }
+        }
+
+        if let module = openingModule, module < 4, let start = moduleFrames[module] {
+            GeometryReader { geo in
+                let color = colors.indices.contains(module) ? colors[module] : Palette.accent
+                let targetSize = geo.size.height * 2 / 3
+                let target = CGRect(x: geo.size.width / 2 - targetSize / 2, y: geo.size.height - targetSize / 2, width: targetSize, height: targetSize)
+                let frame = rect(from: start, to: target, progress: openingProgress)
+                Vinyl(color: color, spinning: false, size: frame.width, showsGlow: false)
+                    .position(x: frame.midX, y: frame.midY)
+                    .allowsHitTesting(false)
+            }
+            .ignoresSafeArea()
+            .zIndex(10)
+        }
         }
         // React when a lesson publishes a completion event through the shared state.
         .onChange(of: state.completionEvent) { _, module in
@@ -274,30 +296,48 @@ struct HomeView: View {
             }
         }
     }
-    // Start the opening animation, mark the module as begun, and push its route after a delay.
+    // Open the selected module directly; lessons animate their own vinyl into place.
     private func openModule(_ index: Int) {
-        // Ignore extra taps while an intro or celebration is already playing.
         guard openingModule == nil && finishingModule == nil else { return }
-        // Record in shared state that the user entered this module so progress can be tracked.
         state.beginModule(index)
-        // Set the module for the opening overlay so it knows which color and style to use.
         openingModule = index
-        // Reset the opening animation to its first stage before animating forward.
-        openingStage = 0
-        // Only trigger haptics on iOS.
+        openingProgress = 0
         #if os(iOS)
-        // Give a light tap response so the button press feels responsive.
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
-        // End of the iOS-only haptic block.
         #endif
-        // Animate the record into its open state before navigating.
-        withAnimation(.easeInOut(duration: 0.85)) { openingStage = 1 }
-        // Wait for the opening animation to finish before switching screens.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.95) {
-            // Append the module index to the NavigationStack path to push the matching destination.
+        if index < 4, moduleFrames[index] != nil {
+            withAnimation(.spring(response: 0.55, dampingFraction: 0.82)) {
+                openingProgress = 1
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.28) {
+                path.append(index)
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
+                openingModule = nil
+                openingProgress = 0
+            }
+        } else {
             path.append(index)
-            // Fade out the opening overlay once the new view is on screen.
-            withAnimation(.easeOut(duration: 0.25)) { openingModule = nil }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                openingModule = nil
+            }
         }
+    }
+
+    private func rect(from start: CGRect, to end: CGRect, progress: CGFloat) -> CGRect {
+        let t = min(max(progress, 0), 1)
+        return CGRect(
+            x: start.minX + (end.minX - start.minX) * t,
+            y: start.minY + (end.minY - start.minY) * t,
+            width: start.width + (end.width - start.width) * t,
+            height: start.height + (end.height - start.height) * t
+        )
+    }
+}
+
+private struct ModuleFrameKey: PreferenceKey {
+    static var defaultValue: [Int: CGRect] = [:]
+    static func reduce(value: inout [Int: CGRect], nextValue: () -> [Int: CGRect]) {
+        value.merge(nextValue()) { _, new in new }
     }
 }

@@ -166,7 +166,7 @@ struct LessonSlideshow: View {
             // Draw the record with the module accent color at the calculated size.
             Vinyl(color: accent, size: vinylSize)
                 // Combine the accumulated spin with the live drag rotation so the record turns under the finger.
-                .rotationEffect(.degrees(spin + Double(drag) * 0.55))
+                .rotationEffect(.degrees(spin - Double(drag) * 0.55))
                 // Slightly enlarge the record while dragging to signal that it is interactive.
                 .scaleEffect(introScale * (isDragging ? 1.03 : 1))
                 // Animate the press/unpress scale with a spring for a tactile feel.
@@ -194,14 +194,14 @@ struct LessonSlideshow: View {
             // The incoming card starts tilted away and transparent, then settles flat and opaque.
             insertion: .modifier(
                 // Negative angle when moving forward, positive when moving backward.
-                active: CardTurn(angle: movingForward ? -75 : 75, opacity: 0),
+                active: CardTurn(angle: movingForward ? 75 : -75, opacity: 0),
                 // Fully visible, untilted end state of the incoming card.
                 identity: CardTurn(angle: 0, opacity: 1)
             ),
             // The outgoing card tilts away in the opposite direction and fades out.
             removal: .modifier(
                 // Positive angle when moving forward, negative when moving backward.
-                active: CardTurn(angle: movingForward ? 75 : -75, opacity: 0),
+                active: CardTurn(angle: movingForward ? -75 : 75, opacity: 0),
                 // Fully visible, untilted start state of the outgoing card.
                 identity: CardTurn(angle: 0, opacity: 1)
             )
@@ -247,7 +247,7 @@ struct LessonSlideshow: View {
                 // A left swipe moves forward; a right swipe moves backward.
                 let direction = translation < 0 ? 1 : -1
                 // Capture the spin accumulated during the drag so the page-turn animation continues smoothly.
-                let dragSpin = Double(drag) * 0.55
+                let dragSpin = -Double(drag) * 0.55
 
                 // End the press state so the record returns to its normal scale.
                 isDragging = false
