@@ -14,8 +14,8 @@
 //     state.completionEvent)` runs the staged celebration and clears the event
 //     after 3.2 s.
 //   • openModule(_:) — ignores taps during animations, tells StudioState the
-//     module began, then expands the card's vinyl down to the bottom edge with
-//     a haptic before pushing the matching route about 0.85 s later.
+//     module began, then fades the menu away while the card's vinyl expands
+//     down to the bottom edge before pushing the matching route.
 // -----------------------------------------------------------------------------
 
 // Import SwiftUI so the file can use View, NavigationStack, Color, and other SwiftUI types.
@@ -40,6 +40,8 @@ struct HomeView: View {
     @State private var openingModule: Int? = nil
     // @State drives the opening transition between the card pose and the bottom pose.
     @State private var openingStage = 0
+    // @State fades the menu page out while the vinyl travels, so the record never sits on top of it.
+    @State private var coverOpacity = 1.0
     // @State holds the screen-space frame of the tapped record so the transition starts in place.
     @State private var openingStartFrame: CGRect = .zero
     // @State remembers each card's artwork frame, measured in global screen coordinates.
@@ -213,6 +215,8 @@ struct HomeView: View {
                 .onAppear { screenSize = proxy.size }
                 // Inset the whole menu from the screen edges.
                 .padding(.horizontal, 18)
+                // Fade the menu content while the travelling vinyl takes over the screen.
+                .opacity(coverOpacity)
             }
             // Apply the app background and default cream text color to the menu.
             .background(Palette.background).foregroundStyle(Palette.cream)
@@ -334,20 +338,29 @@ struct HomeView: View {
         openingStartFrame = frame
         // Reset the transition to the card pose before animating to the bottom.
         openingStage = 0
+        // Restore the cover in case a previous transition was interrupted before cleanup.
+        coverOpacity = 1
         // Only trigger haptics on iOS.
         #if os(iOS)
         // Give a light tap response so the button press feels responsive.
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
         // End of the iOS-only haptic block.
         #endif
+        // Fade the menu away quickly so the record travels across an empty stage.
+        withAnimation(.easeInOut(duration: 0.3)) { coverOpacity = 0 }
         // Expand the record and fly it down to the bottom edge in one direct motion.
-        withAnimation(.spring(response: 0.8, dampingFraction: 0.82)) { openingStage = 1 }
-        // Wait for the record to land before switching screens.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.85) {
+        withAnimation(.spring(response: 0.62, dampingFraction: 0.84)) { openingStage = 1 }
+        // Push the module as the vinyl reaches its landing pose instead of making it wait on the menu.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.58) {
             // Append the module index to the NavigationStack path to push the matching destination.
             path.append(index)
-            // Remove the overlay once the new view is on screen.
-            withAnimation(.easeOut(duration: 0.2)) { openingModule = nil }
+        }
+        // Remove the overlay once the new view is on screen.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.78) {
+            // Cross-fade the flying record into the module's own artwork.
+            withAnimation(.easeOut(duration: 0.18)) { openingModule = nil }
+            // Make the home menu opaque again for whenever the user navigates back.
+            coverOpacity = 1
         }
     }
 }
