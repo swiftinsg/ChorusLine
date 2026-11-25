@@ -1,71 +1,55 @@
 // -----------------------------------------------------------------------------
 // FILE SUMMARY — Components/OpeningRecordAnimation.swift
 // -----------------------------------------------------------------------------
-// PURPOSE: Full-screen "NOW LOADING" overlay played while a module opens.
+// PURPOSE: Seamless opening transition that flies the record from the tapped
+//          home-screen card down to the bottom of the screen, expanding as it
+//          travels. There is no loading screen or status text.
 //
 // HOW IT WORKS:
-//   • body — uses GeometryReader to size the record to the device, then layers a
-//     dimmed background with the label, a spinning Vinyl and a caption. Stage 0
-//     shows a small record; later stages scale it up and rotate it 110° with a
-//     coloured glow.
+//   • body — reads the screen size, derives the destination pose used by the
+//     lesson slideshow (half a record visible at the bottom edge), and places a
+//     spinning Vinyl between the captured card frame and that destination.
+//   • Changing `stage` from 0 to 1 animates both the position and the scale, so
+//     the record grows and travels in one continuous motion.
 // -----------------------------------------------------------------------------
 
 // Import SwiftUI for View, GeometryReader and the animation modifiers used here.
 import SwiftUI
 
-// This full-screen transition turns a loading moment into a record-unveiling animation.
-/// Transition shown while a module is opening.
-struct OpeningRecordAnimation: View {
+// The record transitions straight from its home card to the bottom of the screen.
+/// Full-screen transition that expands a module's vinyl and moves it to the bottom.
+struct VinylOpenTransition: View {
     // Color of the record, matched to the module being opened.
     let color: Color
-    // Animation phase: 0 is the small start pose, later values are the grown, rotated pose.
+    // Frame of the record on the home card, measured in global screen coordinates.
+    let startFrame: CGRect
+    // Animation phase: 0 is the card pose, 1 is the expanded bottom pose.
     let stage: Int
-    // Accent color used for the loading label, defaulting to the app accent.
-    var accent: Color = Palette.accent
-    // Build the transition view using the available screen size.
+
+    // Build the transition using the available screen size.
     var body: some View {
-        // GeometryReader supplies the container size so the record scales to any device.
-        GeometryReader { geo in
-            // Base record size never exceeds 210 points and shrinks on smaller screens.
-            let baseSize = min(210, min(geo.size.width, geo.size.height) * 0.4)
-            // Compute the growth factor, clamped between 0.85 and 1.25 for a pleasant reveal.
-            let maxScale = min(1.25, max(0.85, (geo.size.height * 0.36) / max(baseSize, 1)))
-            // Reserve a frame large enough for the scaled record without clipping its glow.
-            let vinylArea = baseSize * max(maxScale, 0.48)
-            // Layer the dimming background behind the text and record.
-            ZStack {
-                // Cover the screen with a nearly opaque background to hide the previous view.
-                Palette.background.opacity(0.97).ignoresSafeArea()
-                // Stack the label, record and caption vertically with generous spacing.
-                VStack(spacing: 36) {
-                    // Announce that the lesson content is being prepared.
-                    Text("NOW LOADING")
-                        // Use a headline font so the announcement stands out.
-                        .font(.headline)
-                        // Add wide letter spacing for a stylized, technical look.
-                        .tracking(4)
-                        // Tint the label with this module's accent color.
-                        .foregroundStyle(accent)
-                    // Draw the spinning record at the computed base size.
-                    Vinyl(color: color, spinning: true, size: baseSize)
-                        // Start small for stage 0, then grow to the computed scale.
-                        .scaleEffect(stage == 0 ? 0.48 : maxScale)
-                        // Rotate the grown record into place for a dramatic reveal.
-                        .rotationEffect(.degrees(stage == 0 ? 0 : 110))
-                        // Add a soft colored glow that reinforces the module color.
-                        .shadow(color: color.opacity(0.5), radius: 30)
-                        // Constrain layout to the reserved area so surrounding views stay put.
-                        .frame(width: vinylArea, height: vinylArea)
-                    // Give the user a friendly hint about what is happening.
-                    Text("Dropping the needle…")
-                        // Use the standard foreground color so secondary text stays readable.
-                        .foregroundStyle(Palette.cream)
-                }
-                // Add side margins so text does not touch the screen edges.
-                .padding(.horizontal, 24)
-                // Let the stack fill the entire available space.
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
+        // GeometryReader supplies the screen dimensions so the destination matches the lesson deck.
+        GeometryReader { geometry in
+            // LessonSlideshow lays out inside the safe area, so match its available height.
+            let lessonHeight = geometry.size.height - geometry.safeAreaInsets.top - geometry.safeAreaInsets.bottom
+            // Use the same record diameter as LessonSlideshow so the transition lands in place.
+            let targetSize = lessonHeight * 2 / 3
+            // Keep a sensible minimum size when a frame has not been measured yet.
+            let startSize = max(startFrame.width, 24)
+            // Start at the tapped card's record and finish centred on the slideshow's bottom edge, half visible.
+            let startCenter = CGPoint(x: startFrame.midX, y: startFrame.midY)
+            let targetCenter = CGPoint(x: geometry.size.width / 2,
+                                       y: geometry.size.height - geometry.safeAreaInsets.bottom)
+            // Draw the travelling record at its original size, then scale it into the final diameter.
+            Vinyl(color: color, spinning: true, size: startSize, showsGlow: false)
+                // Grow from the card artwork to the slideshow-sized record.
+                .scaleEffect(stage == 0 ? 1 : targetSize / startSize)
+                // Move from the card to the bottom edge of the screen.
+                .position(stage == 0 ? startCenter : targetCenter)
+                // Add a soft glow that grows with the record to reinforce the module color.
+                .shadow(color: color.opacity(stage == 0 ? 0.2 : 0.4), radius: stage == 0 ? 8 : 24)
         }
+        // Let taps pass through; HomeView already guards against opening two modules at once.
+        .allowsHitTesting(false)
     }
 }

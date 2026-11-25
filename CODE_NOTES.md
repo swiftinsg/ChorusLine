@@ -97,11 +97,11 @@ Each `Progression` has `id`, `name`, `mood`, display `chords`, and MIDI `notes` 
 ## Key UI Components
 
 - `Vinyl.swift` — reusable record graphic; can spin and animate “needle drop” scale.
-- `LessonSlideshow.swift` — swipe-driven lesson deck with a large half-visible vinyl. Swipe gesture rotates vinyl and advances slides; calls `onFinish` after the last slide.
+- `LessonSlideshow.swift` — swipe-driven lesson deck with a large half-visible vinyl. Swiping right advances slides and swiping left goes back; the record rotates with the drag and `onFinish` fires after the last slide.
 - `CircularVinylGesture.swift` — converts drag movement around a circle into stepped rotation callbacks; used by quiz vinyl interaction.
 - `PianoKeyboard.swift` — one-octave keyboard; reports MIDI note to caller. Piano/Sandbox use it for transposing/selecting key.
 - `LessonBackground.swift`, `LessonCard.swift`, `PrimaryAction.swift` — shared styling/building blocks.
-- `OpeningRecordAnimation.swift` / `RecordPlayerCompletion.swift` — module opening/completion overlays.
+- `OpeningRecordAnimation.swift` (`VinylOpenTransition`) / `RecordPlayerCompletion.swift` — opening vinyl transition and completion overlay.
 
 ## Notable Current Behaviors
 

@@ -10,13 +10,13 @@
 //   • body — measures the available height with GeometryReader, applies the
 //     shared LessonBackground and hides the inherited navigation title.
 //   • deck(height:) — builds the header, progress bar, scrollable card with a
-//     direction-aware flip, optional hint spacer and the half-visible vinyl;
-//     the record springs from a small scale when the view appears.
+//     direction-aware flip, optional hint spacer and the half-visible vinyl.
 //   • pageTransition — asymmetric 3D flip: incoming and outgoing cards tilt in
 //     opposite directions depending on the swipe direction.
 //   • swipeGesture — tracks horizontal drag to rotate the record live, fires a
 //     selection haptic at the 64 pt threshold, and on release either commits a
-//     page turn or springs the record back.
+//     page turn or springs the record back. Swiping right moves forward; swiping
+//     left moves back.
 //   • spinToPage(_:carrying:) — spins the record a full turn (plus the carried
 //     drag rotation), fires impact haptics, then advances the page or calls
 //     `onFinish` beyond the final card.
@@ -71,8 +71,6 @@ struct LessonSlideshow: View {
     @State private var crossedThreshold = false
     // Records the swipe direction so the outgoing and incoming cards flip the correct way.
     @State private var movingForward = true
-    // Starts the record small so it can spring to full size when the view appears.
-    @State private var introScale = 0.6
 
     // The minimum horizontal travel required before a swipe counts as a page turn.
     private let threshold: CGFloat = 64
@@ -99,10 +97,10 @@ struct LessonSlideshow: View {
         let vinylSize = height * 2 / 3
         // Choose a context-sensitive hint: the last card tells the learner how to leave the lesson.
         let hint = page == slides.count - 1
-            // Final-card wording: swiping continues into the interactive part of the module.
-            ? "Swipe the record to continue"
-            // Earlier-card wording: swiping spins the record to the next lesson section.
-            : "Swipe the record to spin to the next part"
+            // Final-card wording: swiping right continues into the interactive part of the module.
+            ? "Swipe right to continue"
+            // Earlier-card wording: swiping right spins the record to the next lesson section.
+            : "Swipe right to spin to the next part"
 
         // Stack the header, progress bar, card area, and bottom spacing vertically.
         return VStack(spacing: 16) {
@@ -166,9 +164,9 @@ struct LessonSlideshow: View {
             // Draw the record with the module accent color at the calculated size.
             Vinyl(color: accent, size: vinylSize)
                 // Combine the accumulated spin with the live drag rotation so the record turns under the finger.
-                .rotationEffect(.degrees(spin - Double(drag) * 0.55))
+                .rotationEffect(.degrees(spin + Double(drag) * 0.55))
                 // Slightly enlarge the record while dragging to signal that it is interactive.
-                .scaleEffect(introScale * (isDragging ? 1.03 : 1))
+                .scaleEffect(isDragging ? 1.03 : 1)
                 // Animate the press/unpress scale with a spring for a tactile feel.
                 .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isDragging)
                 // Shift the record down by half its height so only its top half is visible.
@@ -178,12 +176,7 @@ struct LessonSlideshow: View {
                 // Attach the swipe gesture that turns pages and spins the record.
                 .gesture(swipeGesture)
                 // Describe the control for VoiceOver users.
-                .accessibilityLabel("Half vinyl record. Swipe to change part")
-        }
-        // Animate the record growing from its initial small scale when the view first appears.
-        .onAppear {
-            // Spring the intro scale to full size for a playful entrance animation.
-            withAnimation(.spring(response: 0.7, dampingFraction: 0.68)) { introScale = 1 }
+                .accessibilityLabel("Half vinyl record. Swipe right for the next part, left for the previous part")
         }
     }
 
@@ -193,14 +186,14 @@ struct LessonSlideshow: View {
         .asymmetric(
             // The incoming card starts tilted away and transparent, then settles flat and opaque.
             insertion: .modifier(
-                // Negative angle when moving forward, positive when moving backward.
+                // Positive angle when moving forward (right swipe), negative when moving backward.
                 active: CardTurn(angle: movingForward ? 75 : -75, opacity: 0),
                 // Fully visible, untilted end state of the incoming card.
                 identity: CardTurn(angle: 0, opacity: 1)
             ),
             // The outgoing card tilts away in the opposite direction and fades out.
             removal: .modifier(
-                // Positive angle when moving forward, negative when moving backward.
+                // Negative angle when moving forward, positive when moving backward.
                 active: CardTurn(angle: movingForward ? -75 : 75, opacity: 0),
                 // Fully visible, untilted start state of the outgoing card.
                 identity: CardTurn(angle: 0, opacity: 1)
@@ -244,10 +237,10 @@ struct LessonSlideshow: View {
                 let translation = abs(flick) > abs(value.translation.width) ? flick : value.translation.width
                 // Commit the page turn only if the chosen distance passes the threshold.
                 let commit = abs(translation) > threshold
-                // A left swipe moves forward; a right swipe moves backward.
-                let direction = translation < 0 ? 1 : -1
+                // A right swipe moves forward; a left swipe moves backward.
+                let direction = translation > 0 ? 1 : -1
                 // Capture the spin accumulated during the drag so the page-turn animation continues smoothly.
-                let dragSpin = -Double(drag) * 0.55
+                let dragSpin = Double(drag) * 0.55
 
                 // End the press state so the record returns to its normal scale.
                 isDragging = false

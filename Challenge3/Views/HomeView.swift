@@ -3,18 +3,19 @@
 // -----------------------------------------------------------------------------
 // PURPOSE: Main menu and navigation hub. Creates the shared StudioState, lists
 //          the four lessons, the sandbox and saved songs, and plays the opening
-//          and completion record animations.
+//          vinyl transition and completion record animation.
 //
 // HOW IT WORKS:
 //   • body — a NavigationStack with integer path routes: 0 StructureView,
 //     1 ChordLessonView, 2 DrumLessonView, 3 MelodyView, 4 SandboxView and
 //     5 SongLibraryView. GeometryReader adapts card size/spacing on short
-//     screens; completed modules show a RecordPlayerBadge. `onChange(of:
+//     screens; completed modules show a RecordPlayerBadge. Each card's artwork
+//     frame is measured so its record can fly out when tapped. `onChange(of:
 //     state.completionEvent)` runs the staged celebration and clears the event
 //     after 3.2 s.
 //   • openModule(_:) — ignores taps during animations, tells StudioState the
-//     module began, plays the intro animation with a haptic, then after 0.95 s
-//     pushes the matching route and fades the overlay out.
+//     module began, then expands the card's vinyl down to the bottom edge with
+//     a haptic before pushing the matching route about 0.85 s later.
 // -----------------------------------------------------------------------------
 
 // Import SwiftUI so the file can use View, NavigationStack, Color, and other SwiftUI types.
@@ -35,12 +36,16 @@ struct HomeView: View {
     @State private var finishingModule: Int? = nil
     // @State drives the step of the completion animation so SwiftUI redraws when the stage changes.
     @State private var completionStage = 0
-    // Tracks which module is currently opening so taps are ignored during navigation transition.
+    // @State tracks which module's vinyl is currently flying to the bottom of the screen.
     @State private var openingModule: Int? = nil
-    // Stores frames for menu vinyls so an opening vinyl can animate from menu to lesson position.
-    @State private var moduleFrames: [Int: CGRect] = [:]
-    // Drives the menu-to-lesson vinyl transition progress.
-    @State private var openingProgress: CGFloat = 0
+    // @State drives the opening transition between the card pose and the bottom pose.
+    @State private var openingStage = 0
+    // @State holds the screen-space frame of the tapped record so the transition starts in place.
+    @State private var openingStartFrame: CGRect = .zero
+    // @State remembers each card's artwork frame, measured in global screen coordinates.
+    @State private var artworkFrames: [Int: CGRect] = [:]
+    // @State stores the menu size so a missing artwork frame still has a sensible fallback position.
+    @State private var screenSize: CGSize = .zero
     // @State holds the NavigationStack's integer route path, where each number maps to a destination view.
     @State private var path: [Int] = []
     // Store the four lesson titles used for the grid buttons' labels.
@@ -54,7 +59,6 @@ struct HomeView: View {
     ]
     // Build the view hierarchy; SwiftUI calls this whenever observed state changes.
     var body: some View {
-        ZStack {
         // Wrap the menu in a stack driven by $path so appending an integer pushes the matching lesson view.
         NavigationStack(path: $path) {
             // Read the available size so the layout can shrink on short screens.
@@ -82,21 +86,24 @@ struct HomeView: View {
                             Button { openModule(index) } label: {
                                 // Stack each lesson's artwork, title, and optional completion label vertically.
                                 VStack(spacing: compact ? 5 : 8) {
-                                    // Check shared state to decide whether this lesson is already finished.
-                                    if state.completed.contains(index) {
-                                        // Show a record-player badge for completed lessons to signal achievement.
-                                        RecordPlayerBadge(color: colors[index], size: vinylSize)
-                                            .opacity(openingModule == index ? 0 : 1)
-                                            .background(GeometryReader { geo in
-                                                Color.clear.preference(key: ModuleFrameKey.self, value: [index: geo.frame(in: .named("menu"))])
-                                            })
-                                    } else {
-                                        // Show the plain artwork for lessons that have not been completed yet.
-                                        Vinyl(color: colors[index], size: vinylSize, showsGlow: false)
-                                            .opacity(openingModule == index ? 0 : 1)
-                                            .background(GeometryReader { geo in
-                                                Color.clear.preference(key: ModuleFrameKey.self, value: [index: geo.frame(in: .named("menu"))])
-                                            })
+                                    // Group both artwork variants so the frame modifier has a concrete view type.
+                                    Group {
+                                        // Check shared state to decide whether this lesson is already finished.
+                                        if state.completed.contains(index) {
+                                            // Show a record-player badge for completed lessons to signal achievement.
+                                            RecordPlayerBadge(color: colors[index], size: vinylSize)
+                                        } else {
+                                            // Show the plain artwork for lessons that have not been completed yet.
+                                            Vinyl(color: colors[index], size: vinylSize, showsGlow: false)
+                                        }
+                                    }
+                                    // Remember where this card's record sits so it can fly out when tapped.
+                                    .onGeometryChange(for: CGRect.self) { geometry in
+                                        // Read the artwork frame in global screen coordinates.
+                                        geometry.frame(in: .global)
+                                    } action: { frame in
+                                        // Save the frame under this module's index for the opening transition.
+                                        artworkFrames[index] = frame
                                     }
                                     // Show the lesson name from the titles array with bold, size-adaptive typography.
                                     Text(titles[index]).font(.system(size: compact ? 13 : 15, weight: .bold))
@@ -124,19 +131,24 @@ struct HomeView: View {
                     Button { openModule(4) } label: {
                         // Arrange the sandbox artwork and title side by side with adaptive spacing.
                         HStack(spacing: compact ? 18 : 24) {
-                            // Check whether the sandbox has been completed to choose its badge artwork.
-                            if state.completed.contains(4) {
-                                // Show a gold record-player badge for a completed sandbox.
-                                RecordPlayerBadge(color: Palette.gold, size: vinylSize * 0.8, accent: Palette.gold)
-                                    .background(GeometryReader { geo in
-                                        Color.clear.preference(key: ModuleFrameKey.self, value: [4: geo.frame(in: .named("menu"))])
-                                    })
-                            } else {
-                                // Otherwise fall back to the incomplete artwork.
-                                Vinyl(color: Palette.gold, size: vinylSize * 0.8, showsGlow: false)
-                                    .background(GeometryReader { geo in
-                                        Color.clear.preference(key: ModuleFrameKey.self, value: [4: geo.frame(in: .named("menu"))])
-                                    })
+                            // Group both artwork variants so the frame modifier has a concrete view type.
+                            Group {
+                                // Check whether the sandbox has been completed to choose its badge artwork.
+                                if state.completed.contains(4) {
+                                    // Show a gold record-player badge for a completed sandbox.
+                                    RecordPlayerBadge(color: Palette.gold, size: vinylSize * 0.8, accent: Palette.gold)
+                                } else {
+                                    // Otherwise fall back to the incomplete artwork.
+                                    Vinyl(color: Palette.gold, size: vinylSize * 0.8, showsGlow: false)
+                                }
+                            }
+                            // Remember the sandbox record's position for the opening transition.
+                            .onGeometryChange(for: CGRect.self) { geometry in
+                                // Read the artwork frame in global screen coordinates.
+                                geometry.frame(in: .global)
+                            } action: { frame in
+                                // Save the frame under the sandbox route index.
+                                artworkFrames[4] = frame
                             }
                             // Label the sandbox button so users know it is the free-play area.
                             Text("Sandbox")
@@ -165,6 +177,14 @@ struct HomeView: View {
                                 .font(.system(size: compact ? 18 : 20, weight: .semibold))
                                 // Tint the icon with the app's accent color.
                                 .foregroundStyle(Palette.accent)
+                                // Use the icon's position as the start of the saved-songs vinyl transition.
+                                .onGeometryChange(for: CGRect.self) { geometry in
+                                    // Read the icon frame in global screen coordinates.
+                                    geometry.frame(in: .global)
+                                } action: { frame in
+                                    // Save the frame under the saved-songs route index.
+                                    artworkFrames[5] = frame
+                                }
                             // Name the destination so users know where the row leads.
                             Text("Saved Songs")
                                 // Size the saved-songs label according to the available height.
@@ -189,12 +209,10 @@ struct HomeView: View {
                     // Absorb leftover vertical space so the menu content sits near the top.
                     Spacer(minLength: 0)
                 }
+                // Remember the menu size for the rare case where a card frame has not been measured yet.
+                .onAppear { screenSize = proxy.size }
                 // Inset the whole menu from the screen edges.
                 .padding(.horizontal, 18)
-            }
-            .coordinateSpace(name: "menu")
-            .onPreferenceChange(ModuleFrameKey.self) { frames in
-                moduleFrames.merge(frames) { _, new in new }
             }
             // Apply the app background and default cream text color to the menu.
             .background(Palette.background).foregroundStyle(Palette.cream)
@@ -233,6 +251,20 @@ struct HomeView: View {
         .tint(Palette.accent)
         // Layer transition animations above the menu without changing its layout.
         .overlay {
+            // Show the travelling record only while a module is opening.
+            if let module = openingModule {
+                // Draw a record that expands and moves from the tapped card to the bottom edge.
+                VinylOpenTransition(
+                    // Use gold for the sandbox, the lesson color for valid indexes, and the accent color as a safe fallback.
+                    color: module == 4 ? Palette.gold : (colors.indices.contains(module) ? colors[module] : Palette.accent),
+                    // Start from the measured artwork frame captured when the card was tapped.
+                    startFrame: openingStartFrame,
+                    // Pass the current stage so the record animates from the card pose to the bottom pose.
+                    stage: openingStage
+                )
+                // Keep the record above the menu without blocking the guard inside openModule.
+                .transition(.opacity).allowsHitTesting(false)
+            }
             // Show the completion animation only while a finishing module is set.
             if let module = finishingModule {
                 // Draw the record-player celebration shown after a module is finished.
@@ -247,21 +279,6 @@ struct HomeView: View {
                 // Fade the celebration in and out while allowing interaction.
                 .transition(.opacity).allowsHitTesting(true)
             }
-        }
-
-        if let module = openingModule, module < 4, let start = moduleFrames[module] {
-            GeometryReader { geo in
-                let color = colors.indices.contains(module) ? colors[module] : Palette.accent
-                let targetSize = geo.size.height * 2 / 3
-                let target = CGRect(x: geo.size.width / 2 - targetSize / 2, y: geo.size.height - targetSize / 2, width: targetSize, height: targetSize)
-                let frame = rect(from: start, to: target, progress: openingProgress)
-                Vinyl(color: color, spinning: false, size: frame.width, showsGlow: false)
-                    .position(x: frame.midX, y: frame.midY)
-                    .allowsHitTesting(false)
-            }
-            .ignoresSafeArea()
-            .zIndex(10)
-        }
         }
         // React when a lesson publishes a completion event through the shared state.
         .onChange(of: state.completionEvent) { _, module in
@@ -296,48 +313,41 @@ struct HomeView: View {
             }
         }
     }
-    // Open the selected module directly; lessons animate their own vinyl into place.
+    // Start the vinyl transition, mark the module as begun, and push its route after a delay.
     private func openModule(_ index: Int) {
+        // Ignore extra taps while a transition or celebration is already playing.
         guard openingModule == nil && finishingModule == nil else { return }
+        // Read the tapped artwork's frame, falling back to a small record near the top third.
+        let measured = artworkFrames[index] ?? CGRect(x: screenSize.width / 2 - 30,
+                                                      y: screenSize.height * 0.28,
+                                                      width: 60, height: 60)
+        // Completed cards show a badge whose inner record is 82% of the frame; the saved-songs icon is much smaller.
+        let artworkScale: CGFloat = index == 5 ? 2.2 : (state.completed.contains(index) ? 0.82 : 1)
+        // Build a square frame matching the actual record artwork that the user tapped.
+        let side = max(24, min(measured.width, measured.height) * artworkScale)
+        let frame = CGRect(x: measured.midX - side / 2, y: measured.midY - side / 2, width: side, height: side)
+        // Record in shared state that the user entered this module so progress can be tracked.
         state.beginModule(index)
+        // Set the module for the opening overlay so it knows which color to use.
         openingModule = index
-        openingProgress = 0
+        // Store the captured card frame as the transition's starting pose.
+        openingStartFrame = frame
+        // Reset the transition to the card pose before animating to the bottom.
+        openingStage = 0
+        // Only trigger haptics on iOS.
         #if os(iOS)
+        // Give a light tap response so the button press feels responsive.
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        // End of the iOS-only haptic block.
         #endif
-        if index < 4, moduleFrames[index] != nil {
-            withAnimation(.spring(response: 0.55, dampingFraction: 0.82)) {
-                openingProgress = 1
-            }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.28) {
-                path.append(index)
-            }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
-                openingModule = nil
-                openingProgress = 0
-            }
-        } else {
+        // Expand the record and fly it down to the bottom edge in one direct motion.
+        withAnimation(.spring(response: 0.8, dampingFraction: 0.82)) { openingStage = 1 }
+        // Wait for the record to land before switching screens.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.85) {
+            // Append the module index to the NavigationStack path to push the matching destination.
             path.append(index)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                openingModule = nil
-            }
+            // Remove the overlay once the new view is on screen.
+            withAnimation(.easeOut(duration: 0.2)) { openingModule = nil }
         }
-    }
-
-    private func rect(from start: CGRect, to end: CGRect, progress: CGFloat) -> CGRect {
-        let t = min(max(progress, 0), 1)
-        return CGRect(
-            x: start.minX + (end.minX - start.minX) * t,
-            y: start.minY + (end.minY - start.minY) * t,
-            width: start.width + (end.width - start.width) * t,
-            height: start.height + (end.height - start.height) * t
-        )
-    }
-}
-
-private struct ModuleFrameKey: PreferenceKey {
-    static var defaultValue: [Int: CGRect] = [:]
-    static func reduce(value: inout [Int: CGRect], nextValue: () -> [Int: CGRect]) {
-        value.merge(nextValue()) { _, new in new }
     }
 }

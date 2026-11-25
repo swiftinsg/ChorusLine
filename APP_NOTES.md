@@ -12,13 +12,13 @@ The home screen shows:
 - **Sandbox** (combine ideas into a song)
 - **Saved Songs** (view and replay saved song ideas)
 
-Tap a module to open it. Opening a module plays a short vinyl loading animation. Completed modules are marked on the home screen.
+Tap a module to open it. Its vinyl expands and travels straight from the home card to the bottom edge of the screen—there is no loading screen. Completed modules are marked on the home screen.
 
 ## Modules
 
 ### 1. Song Structure
 - Walks through common song sections with swipeable lesson slides: Intro, Verse, Pre-Chorus, Chorus, Verse 2, Bridge, and Outro.
-- Swipe/spin the record at the bottom to move between slides.
+- Swipe right on the record at the bottom to move forward between slides; swipe left to go back.
 - Ends with a short quiz where you spin the vinyl to choose an answer and check it.
 - On the first lesson module you open after installing/first using the app, a hint appears to show that you can spin the vinyl to move to the next slide. After that first module, the hint is hidden.
 
