@@ -1,3 +1,18 @@
+// -----------------------------------------------------------------------------
+// FILE SUMMARY — Components/CircularVinylGesture.swift
+// -----------------------------------------------------------------------------
+// PURPOSE: ViewModifier that turns circular finger movement around a record into
+//          discrete +/-1 step callbacks (one step per 65 degrees of rotation).
+//
+// HOW IT WORKS:
+//   • body(content:) — attaches a local DragGesture to a circular content shape.
+//     Each change measures the angle from the record centre, ignores movement
+//     near the spindle, unwraps the ±180° boundary, accumulates degrees and calls
+//     `onStep` once per 65° crossed. onEnded clears the angle and running total.
+//
+// Used by StructureQuizView to spin the vinyl and cycle through answers.
+// -----------------------------------------------------------------------------
+
 // Import SwiftUI for ViewModifier, DragGesture and the geometry types used here.
 import SwiftUI
 

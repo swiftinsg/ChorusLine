@@ -1,3 +1,15 @@
+// -----------------------------------------------------------------------------
+// FILE SUMMARY — Components/OpeningRecordAnimation.swift
+// -----------------------------------------------------------------------------
+// PURPOSE: Full-screen "NOW LOADING" overlay played while a module opens.
+//
+// HOW IT WORKS:
+//   • body — uses GeometryReader to size the record to the device, then layers a
+//     dimmed background with the label, a spinning Vinyl and a caption. Stage 0
+//     shows a small record; later stages scale it up and rotate it 110° with a
+//     coloured glow.
+// -----------------------------------------------------------------------------
+
 // Import SwiftUI for View, GeometryReader and the animation modifiers used here.
 import SwiftUI
 

@@ -1,3 +1,21 @@
+// -----------------------------------------------------------------------------
+// FILE SUMMARY — Support/StudioState.swift
+// -----------------------------------------------------------------------------
+// PURPOSE: Shared ObservableObject holding lesson progress and selections used
+//          by every module.
+//
+// HOW IT WORKS:
+//   • completed — set of finished module IDs loaded from UserDefaults; its didSet
+//     writes changes back so progress survives relaunches.
+//   • completionEvent — published module ID that triggers HomeView's celebration.
+//   • selectedProgression / selectedBeat — last choices shared between screens.
+//   • showModuleSpinHint — whether lesson slides show the spin-to-advance hint.
+//   • finish(_:animate:) — optionally publishes a completion event, then records
+//     the module ID (which persists it via `completed`).
+//   • beginModule(_:) — shows the spin hint only for modules 0–3 on first use,
+//     tracked by the `didShowModuleSwipeHint` UserDefaults flag.
+// -----------------------------------------------------------------------------
+
 // Combine provides ObservableObject so SwiftUI can watch this shared state for changes.
 import Combine
 // Foundation provides UserDefaults so lesson progress survives app restarts.

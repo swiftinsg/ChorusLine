@@ -1,3 +1,14 @@
+// -----------------------------------------------------------------------------
+// FILE SUMMARY — Views/DrumLessonView.swift
+// -----------------------------------------------------------------------------
+// PURPOSE: Module 3 wrapper: rhythm slides followed by the beat machine.
+//
+// HOW IT WORKS:
+//   • body — shows DrumPadsView once `showPads` is true; before that it presents
+//     two LessonSlides about rhythm and pop grooves, with `onFinish` revealing
+//     the playable pads.
+// -----------------------------------------------------------------------------
+
 // Import SwiftUI for the View protocol, state wrappers, and environment object support.
 import SwiftUI
 

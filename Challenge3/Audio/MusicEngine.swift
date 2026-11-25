@@ -1,3 +1,32 @@
+// -----------------------------------------------------------------------------
+// FILE SUMMARY — Audio/MusicEngine.swift
+// -----------------------------------------------------------------------------
+// PURPOSE: Synthesises chords, tones, drum patterns and four-bar song previews in
+//          real time with AVAudioEngine. No external audio samples are bundled.
+//
+// HOW IT WORKS:
+//   • init() — builds the audio graph, connects the player node to the main
+//     mixer and starts the engine; guards every play call with `running`.
+//   • playChord(_:duration:) — renders all MIDI notes of a chord into one PCM
+//     buffer using a sine + octave harmonic, a plucked envelope and 15 ms/120 ms
+//     fade in/out to avoid clicks.
+//   • playTone(_:duration:) — the same synthesis for one MIDI note with a
+//     slightly faster decay; used by the melody drawing canvas.
+//   • playProgression(_:bpm:) — renders one chord per beat into a single buffer;
+//     the active chord is chosen from elapsed time so timing is sample-accurate.
+//   • playBeat(_:bpm:gain:) — renders an eight-step pattern (each step an eighth
+//     note), mixes kick/snare/hat voices, scales by `gain` and clamps the output.
+//   • playSong(progression:beat:bpm:drumGain:) — stops old audio, then renders
+//     four bars of chords plus a looping drum pattern into one preview buffer.
+//   • stop() — stops and immediately restarts the player so it is ready again.
+//   • drumSample(hit:local:index:) — synthesises kick (pitch drop), snare (noise
+//     + tone) or hi-hat (fast noise) from the numeric hit code.
+//   • noise(index:salt:) — repeatable pseudo-random value in [-1, 1] from an
+//     integer hash, so percussion noise sounds identical on every run.
+//
+// Used by PianoView, DrumPadsView, SandboxView, MelodyDrawView, SongLibraryView.
+// -----------------------------------------------------------------------------
+
 // Import Apple's audio framework for the engine, PCM buffers, and playback node.
 import AVFoundation
 // Import Combine so ObservableObject can publish state changes to SwiftUI.

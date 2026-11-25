@@ -1,3 +1,15 @@
+// -----------------------------------------------------------------------------
+// FILE SUMMARY — Views/MelodyRecorderView.swift
+// -----------------------------------------------------------------------------
+// PURPOSE: Melody module entry screen explaining drawing-based melody creation
+//          and linking to the drawing canvas.
+//
+// HOW IT WORKS:
+//   • body — a vertical stack with the title, decorative vinyl, explanation, a
+//     NavigationLink to MelodyDrawView, a landscape tip and a Done button that
+//     completes module 3 and dismisses after the celebration.
+// -----------------------------------------------------------------------------
+
 // Import SwiftUI for the view hierarchy, navigation link, labels, and styling modifiers.
 import SwiftUI
 

@@ -1,3 +1,23 @@
+// -----------------------------------------------------------------------------
+// FILE SUMMARY — Views/StructureQuizView.swift
+// -----------------------------------------------------------------------------
+// PURPOSE: Module 1 quiz with three multiple-choice questions answered by
+//          spinning a vinyl; correct answers celebrate and auto-advance.
+//
+// TYPES / FUNCTIONS:
+//   • body — progress bar, question prompt, large vinyl with answer label and
+//     flying notes, hint, feedback banner and Check Answer button. Uses
+//     CircularVinylGesture to rotate the record and cycle the four answers.
+//   • checkAnswer() — compares the selection with the correct index, celebrating
+//     or showing a retry message, both with haptic feedback.
+//   • celebrate() — success haptics, record pulse, green feedback, then advances
+//     to the next question or completes module 0 and dismisses.
+//   • spawnFlyingNotes() — creates 2–4 random NoteParticle values and removes
+//     each after its one-second flight.
+//   • NoteParticle — data for one note glyph (angle, radii, size, spin, symbol).
+//   • FlyingMusicNote — view that animates a particle outward and fades it out.
+// -----------------------------------------------------------------------------
+
 // Import SwiftUI for the view hierarchy, animations, gestures, and state wrappers.
 import SwiftUI
 // Compile the following import and haptic code only when UIKit is available.

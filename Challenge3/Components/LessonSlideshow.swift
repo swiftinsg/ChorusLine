@@ -1,3 +1,29 @@
+// -----------------------------------------------------------------------------
+// FILE SUMMARY — Components/LessonSlideshow.swift
+// -----------------------------------------------------------------------------
+// PURPOSE: Swipe-driven lesson deck showing cards above a half-visible record.
+//          Swiping turns the record and changes pages; swiping past the last
+//          card calls `onFinish` so the parent can open the interactive module.
+//
+// TYPES / FUNCTIONS:
+//   • LessonSlide — simple title + description model for one card.
+//   • body — measures the available height with GeometryReader, applies the
+//     shared LessonBackground and hides the inherited navigation title.
+//   • deck(height:) — builds the header, progress bar, scrollable card with a
+//     direction-aware flip, optional hint spacer and the half-visible vinyl;
+//     the record springs from a small scale when the view appears.
+//   • pageTransition — asymmetric 3D flip: incoming and outgoing cards tilt in
+//     opposite directions depending on the swipe direction.
+//   • swipeGesture — tracks horizontal drag to rotate the record live, fires a
+//     selection haptic at the 64 pt threshold, and on release either commits a
+//     page turn or springs the record back.
+//   • spinToPage(_:carrying:) — spins the record a full turn (plus the carried
+//     drag rotation), fires impact haptics, then advances the page or calls
+//     `onFinish` beyond the final card.
+//   • CardTurn — ViewModifier applying the 3D rotation and opacity used by the
+//     card transition.
+// -----------------------------------------------------------------------------
+
 // Import SwiftUI for the View protocol, state wrappers, gestures, and view modifiers used below.
 import SwiftUI
 // UIKit is only needed on Apple platforms that provide it, for haptic feedback generators.

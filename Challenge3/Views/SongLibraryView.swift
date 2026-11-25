@@ -1,3 +1,24 @@
+// -----------------------------------------------------------------------------
+// FILE SUMMARY — Views/SongLibraryView.swift
+// -----------------------------------------------------------------------------
+// PURPOSE: Lists saved song ideas with their chord summary, beat and date;
+//          supports preview playback and swipe-to-delete.
+//
+// HOW IT WORKS:
+//   • body — a List seeded from `SongLibrary.load()`. Each row shows the title,
+//     details and a Play button; onDelete removes rows and persists the new JSON
+//     array to UserDefaults. Stops audio when the view disappears.
+//   • play(_:) — safely resolves the stored beat, then plays either the custom
+//     chordNotes (wrapped in a temporary Progression) or the legacy preset index,
+//     using the saved BPM with a fallback of 108.
+//   • chordSummary(for:) — builds an en-dash separated chord list from custom
+//     notes or the built-in progression, with an "Unknown chords" fallback.
+//   • chordLabel(for:) — sorts notes, names the root and appends "m" when a
+//     minor third is present.
+//   • Array subscript(safe:) — private extension returning nil instead of
+//     trapping on out-of-range indices.
+// -----------------------------------------------------------------------------
+
 // Import SwiftUI for List, view modifiers, and the state property wrappers used below.
 import SwiftUI
 

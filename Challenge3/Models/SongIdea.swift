@@ -1,3 +1,21 @@
+// -----------------------------------------------------------------------------
+// FILE SUMMARY — Models/SongIdea.swift
+// -----------------------------------------------------------------------------
+// PURPOSE: Saved song idea model plus UserDefaults-backed persistence helpers.
+//
+// HOW IT WORKS:
+//   • SongIdea — Codable/Identifiable value holding a title, optional legacy
+//     progression index, optional custom MIDI `chordNotes`, optional `bpm`, a
+//     beat index and a creation date. Its memberwise init defaults optional data.
+//   • CodingKeys — maps Swift properties to the keys stored in JSON.
+//   • init(from:) — tolerant decoder that substitutes safe defaults (new UUID,
+//     "Untitled", 0, now) so older saved songs still load.
+//   • SongLibrary.load() — decodes the JSON array at key `vinylStudioSongs`,
+//     returning an empty array when missing or corrupt.
+//   • SongLibrary.save(_:) — prepends a new idea to the loaded array and writes
+//     the encoded JSON back to UserDefaults.
+// -----------------------------------------------------------------------------
+
 // Import Foundation for Codable, UUID, Date, and UserDefaults persistence types.
 import Foundation
 

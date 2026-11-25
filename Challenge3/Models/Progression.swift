@@ -1,3 +1,16 @@
+// -----------------------------------------------------------------------------
+// FILE SUMMARY — Models/Progression.swift
+// -----------------------------------------------------------------------------
+// PURPOSE: Data model and large preset library of four-chord progressions with
+//          the MIDI triads used by the synthesizer.
+//
+// HOW IT WORKS:
+//   • Progression — Identifiable struct with `id`, `name`, `mood`, display chord
+//     symbols (`chords`) and `notes`, four MIDI triads, one per bar.
+//   • progressions — 60 presets across many keys and moods; PianoView and
+//     SandboxView filter them to those whose notes fit the selected major key.
+// -----------------------------------------------------------------------------
+
 // Import Foundation for the basic value types used by this data model.
 import Foundation
 

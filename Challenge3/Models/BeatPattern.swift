@@ -1,3 +1,16 @@
+// -----------------------------------------------------------------------------
+// FILE SUMMARY — Models/BeatPattern.swift
+// -----------------------------------------------------------------------------
+// PURPOSE: Data model and preset library for eight-step drum patterns.
+//
+// HOW IT WORKS:
+//   • BeatPattern — Identifiable struct holding `id`, `name`, `detail` and
+//     `steps`. Each of the eight steps lists the drum hit codes that fire:
+//     0 = kick, 1 = snare, 2 = hi-hat; an empty array is a rest.
+//   • beats — six pop-oriented presets (Classic Pop, Dance Pop, Synth Pop,
+//     Pop Rock, Pop Ballad, R&B Pop) consumed by DrumPadsView and SandboxView.
+// -----------------------------------------------------------------------------
+
 // Import Foundation for the basic value types used by this data model.
 import Foundation
 

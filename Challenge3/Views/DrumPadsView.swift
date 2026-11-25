@@ -1,3 +1,15 @@
+// -----------------------------------------------------------------------------
+// FILE SUMMARY — Views/DrumPadsView.swift
+// -----------------------------------------------------------------------------
+// PURPOSE: Beat-machine screen with six tappable drum-pattern pads.
+//
+// HOW IT WORKS:
+//   • body — a scrollable grid built from `beats`. Tapping a pad saves the choice
+//     in StudioState, stops previous audio and previews its steps through
+//     MusicEngine.playBeat. Stop halts playback; Done marks module 2 complete
+//     and dismisses after the celebration. Audio stops on disappearance.
+// -----------------------------------------------------------------------------
+
 // Import SwiftUI for the view hierarchy, grid layout, buttons, and environment access.
 import SwiftUI
 

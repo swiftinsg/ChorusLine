@@ -1,3 +1,15 @@
+// -----------------------------------------------------------------------------
+// FILE SUMMARY — ContentView.swift
+// -----------------------------------------------------------------------------
+// PURPOSE: Leftover Xcode template screen ("Hello, world!") kept for previews;
+//          it is not part of the app's live navigation flow.
+//
+// HOW IT WORKS:
+//   • body — a vertical stack containing a globe SF Symbol in the tint colour
+//     and a text label, wrapped in default padding.
+//   • #Preview — renders the view in Xcode's canvas without launching the app.
+// -----------------------------------------------------------------------------
+
 //
 //  ContentView.swift
 //  Challenge3

@@ -1,3 +1,16 @@
+// -----------------------------------------------------------------------------
+// FILE SUMMARY — Components/RecordPlayerCompletion.swift
+// -----------------------------------------------------------------------------
+// PURPOSE: Full-screen celebration after a module is completed: a record drops
+//          onto a top-down turntable and starts spinning.
+//
+// HOW IT WORKS:
+//   • body — sizes the deck to the screen with GeometryReader, then layers a
+//     dimmed background with the headline, metallic deck/platter/record/tonearm
+//     and a status caption. Stage 0 is the high drop pose, stage 1 settles the
+//     record, stage 2 spins it and shows the final message.
+// -----------------------------------------------------------------------------
+
 // Import SwiftUI for GeometryReader, shapes and the layout modifiers used in the scene.
 import SwiftUI
 

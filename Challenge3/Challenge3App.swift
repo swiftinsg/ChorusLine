@@ -1,3 +1,14 @@
+// -----------------------------------------------------------------------------
+// FILE SUMMARY — Challenge3App.swift
+// -----------------------------------------------------------------------------
+// PURPOSE: App entry point. The @main attribute tells the system where to start;
+//          the app launches the HomeView as its first screen.
+//
+// HOW IT WORKS:
+//   • body — declares one WindowGroup scene, letting the system manage the app
+//     window while SwiftUI renders HomeView inside it.
+// -----------------------------------------------------------------------------
+
 // Import SwiftUI to get the App and Scene protocols used to launch the interface.
 import SwiftUI
 

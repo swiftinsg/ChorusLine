@@ -1,3 +1,13 @@
+// -----------------------------------------------------------------------------
+// FILE SUMMARY — Components/PrimaryAction.swift
+// -----------------------------------------------------------------------------
+// PURPOSE: Reusable full-width call-to-action button used by lessons and sandbox.
+//
+// HOW IT WORKS:
+//   • body — a plain Button whose label is a full-width headline on a rounded,
+//     tinted background (accent by default, gold in the sandbox) with white text.
+// -----------------------------------------------------------------------------
+
 // Import SwiftUI for View, Button, Text and the layout modifiers used here.
 import SwiftUI
 

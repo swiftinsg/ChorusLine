@@ -1,3 +1,16 @@
+// -----------------------------------------------------------------------------
+// FILE SUMMARY — Components/RecordPlayerBadge.swift
+// -----------------------------------------------------------------------------
+// PURPOSE: Miniature turntable icon shown on the home menu for completed modules.
+//
+// HOW IT WORKS:
+//   • body — overlays a gradient platter, a spinning mini Vinyl and a drawn
+//     tonearm; on appear the record springs from a raised, smaller pose onto the
+//     deck.
+//   • tonearm — private view drawing the bent arm, pivot and highlight dot as a
+//     Path plus circles sized relative to the badge.
+// -----------------------------------------------------------------------------
+
 // Import SwiftUI for the shapes, gradients and layout used in the miniature turntable.
 import SwiftUI
 

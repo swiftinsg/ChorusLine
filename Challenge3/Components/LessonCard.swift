@@ -1,3 +1,15 @@
+// -----------------------------------------------------------------------------
+// FILE SUMMARY — Components/LessonCard.swift
+// -----------------------------------------------------------------------------
+// PURPOSE: Reusable panel rendering one lesson slide: an accent-coloured heading
+//          and body copy on a rounded, subtly outlined card.
+//
+// HOW IT WORKS:
+//   • body — leading-aligned VStack of the bold title and flexible-height
+//     description, padded and placed on a rounded Palette.panel background with
+//     a faint stroke overlay.
+// -----------------------------------------------------------------------------
+
 // Import SwiftUI for Text, VStack, and the layout and styling modifiers used below.
 import SwiftUI
 

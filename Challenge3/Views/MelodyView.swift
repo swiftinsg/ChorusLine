@@ -1,3 +1,15 @@
+// -----------------------------------------------------------------------------
+// FILE SUMMARY — Views/MelodyView.swift
+// -----------------------------------------------------------------------------
+// PURPOSE: Module 4 wrapper: melody-writing slides followed by the melody
+//          recorder entry screen.
+//
+// HOW IT WORKS:
+//   • body — presents MelodyRecorderView with the shared state once `recording`
+//     is true; otherwise shows four LessonSlides (mood, humming, note variety,
+//     capturing ideas) whose `onFinish` flips the flag.
+// -----------------------------------------------------------------------------
+
 // Import SwiftUI for the View protocol, state wrappers, and environment object support.
 import SwiftUI
 

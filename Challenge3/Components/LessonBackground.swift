@@ -1,3 +1,15 @@
+// -----------------------------------------------------------------------------
+// FILE SUMMARY — Components/LessonBackground.swift
+// -----------------------------------------------------------------------------
+// PURPOSE: Shared ViewModifier giving every lesson screen the same background,
+//          foreground colour and inline navigation-title style.
+//
+// HOW IT WORKS:
+//   • body(content:) — expands content to fill the screen, paints Palette.background
+//     behind safe-area edges, sets Palette.cream as the default foreground and
+//     forces a compact inline navigation title.
+// -----------------------------------------------------------------------------
+
 // Import SwiftUI for ViewModifier and the styling modifiers used below.
 import SwiftUI
 

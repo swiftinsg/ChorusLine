@@ -1,3 +1,14 @@
+// -----------------------------------------------------------------------------
+// FILE SUMMARY — Views/StructureView.swift
+// -----------------------------------------------------------------------------
+// PURPOSE: Module 1 wrapper: seven song-section slides followed by the quiz.
+//
+// HOW IT WORKS:
+//   • body — presents StructureQuiz once `quiz` is true; otherwise shows a
+//     LessonSlideshow covering Intro through Outro whose `onFinish` reveals the
+//     quiz.
+// -----------------------------------------------------------------------------
+
 // Import SwiftUI for the View protocol, state wrappers, and environment object support.
 import SwiftUI
 

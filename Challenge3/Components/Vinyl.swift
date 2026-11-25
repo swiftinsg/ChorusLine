@@ -1,3 +1,19 @@
+// -----------------------------------------------------------------------------
+// FILE SUMMARY — Components/Vinyl.swift
+// -----------------------------------------------------------------------------
+// PURPOSE: Reusable record graphic used throughout the app, with optional spin
+//          and needle-drop animations.
+//
+// HOW IT WORKS:
+//   • body — stacks a grey rim, black disc, seven grooves, an optional rim mark,
+//     a gradient label and a centre dot; scales/offsets from a raised pose into
+//     place, adds a coloured glow and starts spinning on appear when requested.
+//   • onChange(of:spinning) — replays the drop and either restarts the spin loop
+//     or resets rotation to zero when spinning is turned off.
+//   • start() — animates rotation from 0 to 360° forever with a linear,
+//     non-reversing animation.
+// -----------------------------------------------------------------------------
+
 // Import SwiftUI for shapes, animations and the view modifiers used to draw the record.
 import SwiftUI
 

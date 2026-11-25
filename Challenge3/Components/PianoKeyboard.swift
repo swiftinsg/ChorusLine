@@ -1,3 +1,22 @@
+// -----------------------------------------------------------------------------
+// FILE SUMMARY — Components/PianoKeyboard.swift
+// -----------------------------------------------------------------------------
+// PURPOSE: One-octave piano keyboard (MIDI 60–71) that reports the tapped note so
+//          callers can play or transpose it.
+//
+// TYPES / FUNCTIONS:
+//   • KeySpec — lightweight key data: MIDI id, optional letter label and the
+//     number of white keys to its left (used for black-key positioning).
+//   • body — measures the container, lays out seven white keys in an HStack and
+//     offsets five narrower/shorter black keys on top. Each tap calls `onNote`
+//     with that key's MIDI number.
+//   • PianoKeyView.body — draws a rounded key with outline, optional label and
+//     shadow; a tap briefly highlights it for 0.16 s before returning to rest.
+//   • fillColor — chooses the pressed or resting fill for black/white keys.
+//
+// Used by PianoView and SandboxView for key selection and transposition.
+// -----------------------------------------------------------------------------
+
 // Import SwiftUI for the View protocol, geometry helpers, buttons, and shape styling.
 import SwiftUI
 

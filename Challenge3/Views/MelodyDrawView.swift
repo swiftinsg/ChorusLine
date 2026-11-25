@@ -1,3 +1,35 @@
+// -----------------------------------------------------------------------------
+// FILE SUMMARY — Views/MelodyDrawView.swift
+// -----------------------------------------------------------------------------
+// PURPOSE: Landscape drawing canvas that turns finger strokes into a melody and
+//          plays it back with synthesized tones in the selected major key.
+//
+// TYPES / FUNCTIONS:
+//   • body — GeometryReader chooses the canvas in landscape or a rotate prompt
+//     in portrait; requests landscape orientation on appear and stops playback
+//     on disappear.
+//   • rotatePrompt — portrait screen asking the user to rotate the device.
+//   • canvas — drawing area (Canvas + drag gesture), key picker, Play/Clear
+//     controls and the module completion button.
+//   • dragGesture(canvasSize:) — starts a stroke on touch down, appends points
+//     while moving, and on release commits valid strokes and previews a note.
+//   • draw(_:in:) — renders a stroke as four layered paths (outer glow, inner
+//     glow, solid core, white highlight) using blurred GraphicsContext copies.
+//   • playTone(for:in:) — maps a stroke to a MIDI note/duration and plays it.
+//   • playAllStrokes() — sorts strokes left-to-right and plays each note in a
+//     cancellable MainActor Task with a session token and short inter-note gap.
+//   • stopPlayback() — invalidates the session, cancels the task, silences audio
+//     and resets `isPlaying`.
+//   • note(for:in:) — maps stroke length to duration (0.12–1.8 s) and average y
+//     to a scale note (higher on screen = higher pitch).
+//   • allowedNotes() — MIDI 52–81 filtered to the chosen major key.
+//   • strokeAnchorX(_:) — midpoint of a stroke's x-range, used for play order.
+//   • strokeLength(_:) — sums segment distances along the stroke's polyline.
+//   • randomBlue() — picks a random shade from a curated blue palette.
+//   • requestLandscape() — asks the iOS window scene to rotate to landscape.
+//   • MelodyStroke — Identifiable model holding points, colour and line width.
+// -----------------------------------------------------------------------------
+
 // Import SwiftUI for views, gestures, Canvas rendering, and state management.
 import SwiftUI
 // Only compile the UIKit import when the target platform provides UIKit.

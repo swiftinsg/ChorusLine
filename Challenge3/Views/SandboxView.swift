@@ -1,3 +1,29 @@
+// -----------------------------------------------------------------------------
+// FILE SUMMARY — Views/SandboxView.swift
+// -----------------------------------------------------------------------------
+// PURPOSE: Free-play song builder: pick chords/key/tempo/beat, audition them and
+//          save a SongIdea to the library for later playback.
+//
+// TYPES / FUNCTIONS:
+//   • filteredProgressions — progressions whose notes all fit the chosen key.
+//   • body — scrollable form with a song-title field, chord section (menus,
+//     chord columns, piano, tempo), beat grid, save section and library link.
+//     Appearance restores shared key/progression/beat choices; changes to them
+//     or the tempo clear the saved flag; disappearance stops audio.
+//   • chordColumnsView — tap-to-play chord columns with note labels and haptics.
+//   • keyMenu / progressionMenu — pickers keeping the progression valid and
+//     invalidating the saved snapshot on change.
+//   • selectKey(_:) — changes key, resets transposition, invalidates the saved
+//     idea and repairs the progression choice.
+//   • transpose(to:) — sets the song key from a tapped piano note, re-filters
+//     progressions, invalidates the save and fires a haptic.
+//   • currentChordNotes() — chosen progression's MIDI triads with transpose applied.
+//   • customProgression() — packages the current notes into a temporary
+//     Progression for playSong previews.
+//   • chordLabel(for:) / noteName(for:) — derive readable chord and note names
+//     from MIDI numbers.
+// -----------------------------------------------------------------------------
+
 // Import SwiftUI for the view, state, and layout APIs used throughout this screen.
 import SwiftUI
 // Only compile the UIKit import on platforms that actually provide UIKit.

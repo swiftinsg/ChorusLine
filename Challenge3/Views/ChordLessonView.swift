@@ -1,3 +1,15 @@
+// -----------------------------------------------------------------------------
+// FILE SUMMARY — Views/ChordLessonView.swift
+// -----------------------------------------------------------------------------
+// PURPOSE: Module 2 wrapper: shows chord lesson slides, then the interactive
+//          chord piano.
+//
+// HOW IT WORKS:
+//   • body — presents PianoView with the shared state once `showPiano` is true;
+//     otherwise shows a LessonSlideshow with three slides (chords, progressions,
+//     using the piano) whose `onFinish` flips the flag.
+// -----------------------------------------------------------------------------
+
 // Import SwiftUI for the View protocol, state wrappers, and environment object support.
 import SwiftUI
 

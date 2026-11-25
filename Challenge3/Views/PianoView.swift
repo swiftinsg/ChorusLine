@@ -1,3 +1,29 @@
+// -----------------------------------------------------------------------------
+// FILE SUMMARY — Views/PianoView.swift
+// -----------------------------------------------------------------------------
+// PURPOSE: Module 2 interactive screen: play chords from a progression in any
+//          major key, transpose with a one-octave piano and adjust the tempo.
+//
+// TYPES / FUNCTIONS:
+//   • filteredProgressions — computed list of presets whose every MIDI note fits
+//     the selected key's major scale.
+//   • body — header with key/progression menus, progression details, chord
+//     columns, PianoKeyboard, key/tempo controls and a Done button that completes
+//     module 1. On appear it restores shared selections; on disappear audio stops.
+//   • chordColumnsView — one tappable column per chord; each tap stops prior
+//     audio, plays the chord with a haptic and displays its note names.
+//   • keyMenu / progressionMenu — pickers that keep the progression valid,
+//     falling back to the first diatonic option when needed.
+//   • selectKey(_:) — sets the key, resets transposition and repairs the choice.
+//   • transpose(to:) — treats a tapped piano MIDI note as the new tonic, then
+//     re-filters progressions and fires a haptic.
+//   • currentChordNotes() — chosen progression's MIDI triads with the transpose
+//     offset applied.
+//   • chordLabel(for:) — names the lowest note and appends "m" when a minor
+//     third is present.
+//   • noteName(for:) — converts a MIDI number into a pitch-class name.
+// -----------------------------------------------------------------------------
+
 // Import SwiftUI for the view, state, and layout APIs used throughout this screen.
 import SwiftUI
 // Only compile the UIKit import on platforms that actually provide UIKit.

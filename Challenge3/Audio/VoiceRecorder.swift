@@ -1,3 +1,21 @@
+// -----------------------------------------------------------------------------
+// FILE SUMMARY — Audio/VoiceRecorder.swift
+// -----------------------------------------------------------------------------
+// PURPOSE: Records a hummed melody to `my-melody.m4a` in Documents and plays it
+//          back. This utility is available in the codebase, but the current
+//          melody module uses the drawing canvas (MelodyDrawView) instead.
+//
+// HOW IT WORKS:
+//   • url — computed Documents URL for the single file that is overwritten on
+//     each new recording.
+//   • init() — restores `hasRecording` by checking whether that file exists.
+//   • toggle() — stops/saves an active recording, or asks for microphone access,
+//     configures the `.playAndRecord` session, creates an AAC AVAudioRecorder and
+//     starts it. UI changes are dispatched to the main queue.
+//   • play() — creates an AVAudioPlayer from the saved file and starts it,
+//     reporting errors through the published `message`.
+// -----------------------------------------------------------------------------
+
 // Import AVFoundation for AVAudioRecorder, AVAudioPlayer, and session/permission APIs.
 import AVFoundation
 // Import Combine so @Published properties can notify SwiftUI views.

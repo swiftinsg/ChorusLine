@@ -1,3 +1,18 @@
+// -----------------------------------------------------------------------------
+// FILE SUMMARY — Support/Palette.swift
+// -----------------------------------------------------------------------------
+// PURPOSE: Central colour palette with light/dark adaptive values used across
+//          the whole app.
+//
+// HOW IT WORKS:
+//   • accent / gold — fixed blue accent and sandbox gold.
+//   • background / panel / cream / subtle — dynamic colours with a light and a
+//     dark variant for surfaces and text; `muted` uses the system secondary.
+//   • dynamic(light:dark:) — private helper wrapping two UIColors in a
+//     trait/appearance-aware SwiftUI Color (UIKit on iOS, AppKit on macOS,
+//     light-colour fallback elsewhere).
+// -----------------------------------------------------------------------------
+
 // SwiftUI provides the Color type used by every palette entry.
 import SwiftUI
 // UIKit is only available on some platforms, so guard its import with a compiler check.

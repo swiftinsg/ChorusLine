@@ -1,3 +1,22 @@
+// -----------------------------------------------------------------------------
+// FILE SUMMARY — Views/HomeView.swift
+// -----------------------------------------------------------------------------
+// PURPOSE: Main menu and navigation hub. Creates the shared StudioState, lists
+//          the four lessons, the sandbox and saved songs, and plays the opening
+//          and completion record animations.
+//
+// HOW IT WORKS:
+//   • body — a NavigationStack with integer path routes: 0 StructureView,
+//     1 ChordLessonView, 2 DrumLessonView, 3 MelodyView, 4 SandboxView and
+//     5 SongLibraryView. GeometryReader adapts card size/spacing on short
+//     screens; completed modules show a RecordPlayerBadge. `onChange(of:
+//     state.completionEvent)` runs the staged celebration and clears the event
+//     after 3.2 s.
+//   • openModule(_:) — ignores taps during animations, tells StudioState the
+//     module began, plays the intro animation with a haptic, then after 0.95 s
+//     pushes the matching route and fades the overlay out.
+// -----------------------------------------------------------------------------
+
 // Import SwiftUI so the file can use View, NavigationStack, Color, and other SwiftUI types.
 import SwiftUI
 // Check at compile time whether UIKit is available before using iOS-only APIs.
