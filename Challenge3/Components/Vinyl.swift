@@ -44,15 +44,15 @@ struct Vinyl: View {
         // Stack every part of the record on top of one another.
         ZStack {
             // Draw a slightly oversized gray ring to suggest the record's outer edge.
-            Circle().fill(Color.gray.opacity(0.35)).padding(-5)
+            Circle().fill(Color.gray.opacity(0.35)).padding(-size * 0.038)
             // Draw the black vinyl surface that forms the body of the record.
             Circle().fill(Color.black)
             // Add seven concentric grooves to make the disc look like a real record.
             ForEach(0..<7, id: \.self) { i in
                 // Stroke each groove in faint white so it reads as a reflective ring.
                 Circle().stroke(Color.white.opacity(0.055), lineWidth: 1)
-                    // Push each successive groove further inward using the loop index.
-                    .padding(CGFloat(i) * 8 + 7)
+                    // Scale groove spacing with size so vinyl proportions stay consistent at any size.
+                    .padding(size * (CGFloat(i) * 8 + 7) / 132)
             }
             // Optionally draw a short colored mark near the rim to reveal the spin.
             if showsRimMark {
@@ -71,7 +71,7 @@ struct Vinyl: View {
             // Add a thin white ring around the label for definition.
             Circle().stroke(.white.opacity(0.25), lineWidth: 1).padding(size * 0.33)
             // Optionally draw the small cream spindle dot at the very center.
-            if showCenterDot { Circle().fill(Palette.cream).frame(width: 9, height: 9) }
+            if showCenterDot { Circle().fill(Palette.cream).frame(width: size * 0.068, height: size * 0.068) }
         }
         // Constrain the stacked shapes to the requested square size.
         .frame(width: size, height: size)

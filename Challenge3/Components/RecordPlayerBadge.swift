@@ -29,21 +29,9 @@ struct RecordPlayerBadge: View {
 
     // Compose the platter, record and tonearm into one badge.
     var body: some View {
-        // Overlay the record and tonearm on top of the round deck.
+        // Overlay the record and tonearm without a platter background.
         ZStack {
-            // Draw the turntable deck as a circle.
-            Circle()
-                // Fill it with a metallic gradient from light to dark to suggest depth.
-                .fill(LinearGradient(colors: [Color(white: 0.32), Palette.panel, Color(white: 0.07)], startPoint: .topLeading, endPoint: .bottomTrailing))
-                // Add a thin accent ring around the deck edge.
-                .overlay {
-                    // A circle outline defines the rim of the platter.
-                    Circle().stroke(accent.opacity(0.35), lineWidth: max(1, size * 0.012))
-                }
-                // Cast a soft shadow below the deck so it appears to sit above the menu.
-                .shadow(color: .black.opacity(0.6), radius: size * 0.06, y: size * 0.04)
-
-            // Place a spinning miniature record on top of the deck.
+            // Place a spinning miniature record.
             Vinyl(color: color, spinning: true, size: size * 0.82, showCenterDot: true, showsGlow: false)
                 // Animate from a small scale to full size once the badge appears.
                 .scaleEffect(dropped ? 1 : 0.55)
