@@ -171,8 +171,8 @@ struct HomeView: View {
                         .overlay(RoundedRectangle(cornerRadius: 22).stroke(Palette.gold.opacity(0.35)))
                     // Keep the sandbox card's custom look instead of the system button style.
                     }.buttonStyle(.plain)
-                    // Tapping saved songs navigates to index 5, which is the SongLibraryView route.
-                    Button { openModule(5) } label: {
+                    // Tapping saved songs navigates with the standard side slide to index 5.
+                    NavigationLink(value: 5) {
                         // Lay out the saved-songs icon, label, spacer, and chevron in a row.
                         HStack(spacing: compact ? 12 : 16) {
                             // Show a musical-list symbol to make the saved-songs row recognizable.
@@ -181,14 +181,6 @@ struct HomeView: View {
                                 .font(.system(size: compact ? 18 : 20, weight: .semibold))
                                 // Tint the icon with the app's accent color.
                                 .foregroundStyle(Palette.accent)
-                                // Use the icon's position as the start of the saved-songs vinyl transition.
-                                .onGeometryChange(for: CGRect.self) { geometry in
-                                    // Read the icon frame in global screen coordinates.
-                                    geometry.frame(in: .global)
-                                } action: { frame in
-                                    // Save the frame under the saved-songs route index.
-                                    artworkFrames[5] = frame
-                                }
                             // Name the destination so users know where the row leads.
                             Text("Saved Songs")
                                 // Size the saved-songs label according to the available height.
@@ -208,7 +200,7 @@ struct HomeView: View {
                         .frame(maxWidth: .infinity)
                         // Put the row on a rounded panel matching the lesson cards.
                         .background(Palette.panel, in: RoundedRectangle(cornerRadius: 18))
-                    // Apply the same custom button treatment as the other menu cards.
+                    // Apply the same custom row treatment as the other menu cards.
                     }.buttonStyle(.plain)
                     // Absorb leftover vertical space so the menu content sits near the top.
                     Spacer(minLength: 0)
@@ -334,9 +326,9 @@ struct HomeView: View {
         let frame = CGRect(x: measured.midX - side / 2, y: measured.midY - side / 2, width: side, height: side)
         // Record in shared state that the user entered this module so progress can be tracked.
         state.beginModule(index)
-        // The sandbox opens directly: no vinyl flight, no loading state and no delayed push.
+        // The sandbox uses the standard side-slide navigation like saved songs.
         if index == 4 {
-            pushWithoutSlide(index)
+            path.append(index)
             return
         }
         // Set the module for the opening overlay so it knows which color to use.
