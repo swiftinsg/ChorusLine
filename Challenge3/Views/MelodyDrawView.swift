@@ -119,7 +119,7 @@ struct MelodyDrawView: View {
                 // Make the rotate icon large so it is immediately noticeable.
                 .font(.system(size: 56))
                 // Tint the icon with the app's accent color for emphasis.
-                .foregroundStyle(Palette.accent)
+                .foregroundStyle(Palette.melody)
             // Give a direct instruction to rotate the device horizontally.
             Text("Rotate your phone horizontally")
                 // Use a bold title font so the primary instruction stands out.
@@ -156,7 +156,7 @@ struct MelodyDrawView: View {
                             // Use a matching rounded rectangle for the outline shape.
                             RoundedRectangle(cornerRadius: 18)
                                 // Draw a faint accent-colored border to define the canvas edge.
-                                .stroke(Palette.accent.opacity(0.22), lineWidth: 1)
+                                .stroke(Palette.melody.opacity(0.22), lineWidth: 1)
                         )
 
                     // Use SwiftUI's Canvas to render strokes with custom glow effects.
@@ -241,7 +241,7 @@ struct MelodyDrawView: View {
                         // Fill a capsule-shaped background behind the label.
                         .background(Palette.panel, in: Capsule())
                         // Outline the capsule with a faint accent stroke.
-                        .overlay(Capsule().stroke(Palette.accent.opacity(0.35)))
+                        .overlay(Capsule().stroke(Palette.melody.opacity(0.35)))
                 }
                 // Tint the menu with the app's cream color.
                 .tint(Palette.cream)
@@ -273,7 +273,7 @@ struct MelodyDrawView: View {
                 // Give Play a filled, prominent button style.
                 .buttonStyle(.borderedProminent)
                 // Color the Play button with the accent color.
-                .tint(Palette.accent)
+                .tint(Palette.melody)
                 // Disable Play when there is nothing to play or playback is already running.
                 .disabled(strokes.isEmpty || isPlaying)
 
@@ -576,7 +576,7 @@ struct MelodyDrawView: View {
             Color(red: 0.12, green: 0.48, blue: 0.88)
         ]
         // Return a random palette entry, falling back to the accent color if needed.
-        return palette.randomElement() ?? Palette.accent
+        return palette.randomElement() ?? Palette.melody
     }
 
     // Ask the system to rotate the window to landscape so drawing has enough room.

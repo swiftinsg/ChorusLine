@@ -39,7 +39,7 @@ struct MelodyView: View {
             MelodyRecorderView().environmentObject(state)
         } else {
             // Otherwise show the slides with the module title, accent color, and optional swipe hint.
-            LessonSlideshow(moduleTitle: "MELODY", accent: Palette.accent, slides: slides, showsSwipeHint: state.showModuleSpinHint) {
+            LessonSlideshow(moduleTitle: "MELODY", accent: Palette.melody, slides: slides, showsSwipeHint: state.showModuleSpinHint) {
                 // When the final swipe completes, flip the flag to replace slides with the recorder.
                 recording = true
             }

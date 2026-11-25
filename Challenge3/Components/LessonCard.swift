@@ -21,12 +21,14 @@ struct LessonCard: View {
     let title: String
     // Body copy explaining the lesson topic.
     let description: String
+    // Accent color for the card title, matching the module's theme.
+    var accent: Color = Palette.accent
     // Compose the card's internal layout and surface styling.
     var body: some View {
         // Stack heading and description vertically with leading alignment and 12-point gaps.
         VStack(alignment: .leading, spacing: 12) {
-            // Render the title prominently in bold and color it with the accent.
-            Text(title).font(.title2.bold()).foregroundStyle(Palette.accent)
+            // Render the title prominently in bold and color it with the module accent.
+            Text(title).font(.title2.bold()).foregroundStyle(accent)
             // Render the explanation in body type using the theme's foreground color.
             Text(description).font(.body).foregroundStyle(Palette.cream)
                 // Wrap horizontally but keep the full height so text is never truncated.

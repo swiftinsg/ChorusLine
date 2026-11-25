@@ -32,9 +32,9 @@ struct MelodyRecorderView: View {
                 // Add letter spacing for a stylized studio aesthetic.
                 .tracking(1.5)
                 // Color the title with the app's accent palette.
-                .foregroundStyle(Palette.accent)
+                .foregroundStyle(Palette.melody)
             // Decorative half-visible record reinforces the music-studio theme of the module.
-            Vinyl(color: Palette.accent, size: 190)
+            Vinyl(color: Palette.melody, size: 190)
             // Explain how drawing gestures map to musical note lengths on the canvas.
             Text("Turn your drawings into melody. Long strokes become sustained notes, and short strokes become quick notes.")
                 // Mute the color so the explanation reads as supporting text.
@@ -52,7 +52,7 @@ struct MelodyRecorderView: View {
                     // Stretch the button across the available width and pad it for a large tap target.
                     .frame(maxWidth: .infinity).padding(15)
                     // Fill the button with the accent color inside a rounded rectangle.
-                    .background(Palette.accent, in: RoundedRectangle(cornerRadius: 14))
+                    .background(Palette.melody, in: RoundedRectangle(cornerRadius: 14))
                     // Use white text for contrast against the accent background.
                     .foregroundStyle(.white)
             }

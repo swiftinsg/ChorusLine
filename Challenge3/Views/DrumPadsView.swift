@@ -56,7 +56,7 @@ struct DrumPadsView: View {
                         // Make each pad fill its grid column and give it a comfortable minimum height.
                         }.frame(maxWidth: .infinity).frame(minHeight: 120, idealHeight: 125)
                             // Highlight the currently selected pad in the accent color; others use the panel color.
-                            .background(selected == beat.id ? Palette.accent.opacity(0.45) : Palette.panel, in: RoundedRectangle(cornerRadius: 18))
+                            .background(selected == beat.id ? Palette.drum.opacity(0.45) : Palette.panel, in: RoundedRectangle(cornerRadius: 18))
                     // Remove default button styling so the custom rounded-rectangle pad design shows through.
                     }.buttonStyle(.plain)
                 }

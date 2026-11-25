@@ -112,8 +112,8 @@ struct LessonSlideshow: View {
                 .font(.system(size: 28, weight: .bold))
                 // Add letter spacing for a stylized music-studio look.
                 .tracking(1.5)
-                // Color the title with the app's accent palette.
-                .foregroundStyle(Palette.accent)
+                // Color the title with the module's accent color.
+                .foregroundStyle(accent)
                 // Keep the title on one line even for longer module names.
                 .lineLimit(1)
                 // Shrink the font if needed so the title still fits the available width.
@@ -131,7 +131,7 @@ struct LessonSlideshow: View {
                 // Layer card views in the same spot so transitions overlap cleanly.
                 ZStack {
                     // Render the card for the current page using its title and description.
-                    LessonCard(title: slides[page].title, description: slides[page].description)
+                    LessonCard(title: slides[page].title, description: slides[page].description, accent: accent)
                         // Give the card a page-based identity so SwiftUI treats each page as a new view and animates its transition.
                         .id(page)
                         // Apply the direction-aware card flip when a page appears or disappears.

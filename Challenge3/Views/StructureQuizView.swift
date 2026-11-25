@@ -69,8 +69,8 @@ struct StructureQuiz: View {
             Text("SPIN THE ANSWERS").font(.title2.bold())
             // Show how many questions are complete out of the total, converting Ints to Doubles for the progress bar.
             ProgressView(value: Double(question + 1), total: Double(questions.count))
-                // Color the progress bar with the accent and give screen readers a meaningful label.
-                .tint(Palette.accent).accessibilityLabel("Quiz progress")
+                // Color the progress bar with the module accent and give screen readers a meaningful label.
+                .tint(Palette.structure).accessibilityLabel("Quiz progress")
             // Show the prompt for the current question from the questions array.
             Text(questions[question].0)
                 // Make the question prominent so it is the focus of the screen.
@@ -89,7 +89,7 @@ struct StructureQuiz: View {
                 // Overlay the answer label and flying notes on top of the vinyl record.
                 ZStack {
                     // Draw the record with a visible rim so users know where to trace their finger.
-                    Vinyl(color: Palette.accent, size: vinylSize, showCenterDot: false, showsRimMark: true)
+                    Vinyl(color: Palette.structure, size: vinylSize, showCenterDot: false, showsRimMark: true)
                         // Rotate the record by the accumulated spin angle from the gesture handler.
                         .rotationEffect(.degrees(rotation))
                         // Briefly enlarge the record when a correct answer is celebrated.
@@ -338,7 +338,7 @@ private struct FlyingMusicNote: View {
             // Draw the note in white so it stands out against the dark vinyl.
             .foregroundStyle(.white)
             // Add an accent-colored glow so the note feels musical and luminous.
-            .shadow(color: Palette.accent, radius: 8)
+            .shadow(color: Palette.structure, radius: 8)
             // Add a subtle dark drop shadow for depth against lighter backgrounds.
             .shadow(color: .black.opacity(0.35), radius: 2, x: 0, y: 1)
             // Move the note from its start radius toward the outside of the record as travel becomes true.

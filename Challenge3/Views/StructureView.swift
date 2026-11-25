@@ -44,7 +44,7 @@ struct StructureView: View {
             StructureQuiz().environmentObject(state)
         } else {
             // Otherwise show the slides with the module title, accent color, and optional swipe hint.
-            LessonSlideshow(moduleTitle: "SONG STRUCTURE", accent: Palette.accent, slides: slides, showsSwipeHint: state.showModuleSpinHint) {
+            LessonSlideshow(moduleTitle: "SONG STRUCTURE", accent: Palette.structure, slides: slides, showsSwipeHint: state.showModuleSpinHint) {
                 // When the final swipe completes, flip the flag to replace slides with the quiz.
                 quiz = true
             }

@@ -37,7 +37,7 @@ struct ChordLessonView: View {
             PianoView().environmentObject(state)
         } else {
             // Otherwise show the slides with the module title and accent color, plus the optional swipe hint setting.
-            LessonSlideshow(moduleTitle: "CHORD PROGRESSION", accent: Palette.accent, slides: slides, showsSwipeHint: state.showModuleSpinHint) {
+            LessonSlideshow(moduleTitle: "CHORD PROGRESSION", accent: Palette.chord, slides: slides, showsSwipeHint: state.showModuleSpinHint) {
                 // When the final swipe completes, flip the flag to replace slides with the piano.
                 showPiano = true
             }

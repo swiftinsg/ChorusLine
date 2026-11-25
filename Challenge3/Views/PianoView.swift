@@ -110,7 +110,7 @@ struct PianoView: View {
                     // Show the progression name in the accent color.
                     Text(selected.name)
                         // Use a bold headline font to make the name prominent.
-                        .font(.headline).foregroundStyle(Palette.accent)
+                        .font(.headline) .foregroundStyle(Palette.chord)
                     // Show the mood tag as secondary musical context.
                     Text(selected.mood)
                         // Use muted caption text so the mood does not compete with the name.
@@ -133,7 +133,7 @@ struct PianoView: View {
                 // Display the active key name using the shared note-name table.
                 Text("Playing in \(lastKey)")
                     // Make the key label a small, bold accent so it is easy to spot.
-                    .font(.caption.bold()).foregroundStyle(Palette.accent)
+                    .font(.caption.bold()) .foregroundStyle(Palette.chord)
                 // Push the hint text to the right edge of the row.
                 Spacer()
                 // Clarify that piano taps change the key rather than playing individual notes.
@@ -153,7 +153,7 @@ struct PianoView: View {
                 // Bind the slider to bpm so dragging it updates state and the label together.
                 Slider(value: $bpm, in: 60...180, step: 5)
                     // Match the slider thumb and track to the app's accent color.
-                    .tint(Palette.accent)
+                     .tint(Palette.chord)
                     // Give the control a clear name for VoiceOver.
                     .accessibilityLabel("Tempo")
                     // Speak the tempo in musical beats-per-minute terms.
@@ -163,7 +163,7 @@ struct PianoView: View {
                     // Use monospaced digits so the value does not shift while dragging.
                     .font(.caption.bold().monospacedDigit())
                     // Highlight the value in the accent color.
-                    .foregroundStyle(Palette.accent)
+                     .foregroundStyle(Palette.chord)
                     // Reserve a fixed width to keep the layout steady.
                     .frame(width: 64, alignment: .trailing)
             }
@@ -260,7 +260,7 @@ struct PianoView: View {
                                     // Add vertical padding to make the pill comfortable to read.
                                     .padding(.vertical, 5)
                                     // Draw a translucent accent rounded rectangle behind the note.
-                                    .background(Palette.accent.opacity(0.22), in: RoundedRectangle(cornerRadius: 6))
+                                    .background(Palette.chord.opacity(0.22), in: RoundedRectangle(cornerRadius: 6))
                                     // Keep the note text light against the tinted pill.
                                     .foregroundStyle(Palette.cream)
                             }
@@ -275,7 +275,7 @@ struct PianoView: View {
                     // Draw a rounded panel behind the whole column.
                     .background(Palette.panel, in: RoundedRectangle(cornerRadius: 12))
                     // Outline the panel faintly to suggest that it is tappable.
-                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(Palette.accent.opacity(0.35), lineWidth: 1))
+                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(Palette.chord.opacity(0.35), lineWidth: 1))
                 }
                 // Remove default button styling so only the custom panel is visible.
                 .buttonStyle(.plain)
@@ -321,7 +321,7 @@ struct PianoView: View {
                 // Fill the chip with the panel color.
                 .background(Palette.panel, in: Capsule())
                 // Add a thin accent outline around the capsule.
-                .overlay(Capsule().stroke(Palette.accent.opacity(0.35)))
+                .overlay(Capsule().stroke(Palette.chord.opacity(0.35)))
         }
         // Tint menu items to the light cream color used elsewhere in the app.
         .tint(Palette.cream)
@@ -361,7 +361,7 @@ struct PianoView: View {
                 // Fill the chip with the panel color.
                 .background(Palette.panel, in: Capsule())
                 // Add a faint accent outline to the capsule.
-                .overlay(Capsule().stroke(Palette.accent.opacity(0.35)))
+                .overlay(Capsule().stroke(Palette.chord.opacity(0.35)))
         }
         // Tint the menu's text and checkmarks to the light cream color.
         .tint(Palette.cream)

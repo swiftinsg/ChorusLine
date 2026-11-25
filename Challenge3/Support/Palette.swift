@@ -32,6 +32,12 @@ enum Palette {
     /// Reserved for the sandbox so it stays distinct.
     static let gold = Color(red: 0.92, green: 0.72, blue: 0.36)
 
+    // Per-module colors used on the home menu and within each module for visual identity.
+    static let structure = Color(red: 0.95, green: 0.45, blue: 0.45) // coral/red
+    static let chord = Color(red: 0.45, green: 0.75, blue: 0.55)     // green
+    static let drum = Color(red: 0.95, green: 0.65, blue: 0.30)      // orange
+    static let melody = Color(red: 0.70, green: 0.55, blue: 0.95)    // purple
+
     // Ask the helper for a background color that adapts to the system appearance.
     /// App background.
     static let background = dynamic(
