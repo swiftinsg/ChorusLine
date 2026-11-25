@@ -43,8 +43,13 @@ struct HomeView: View {
     @State private var path: [Int] = []
     // Store the four lesson titles used for the grid buttons' labels.
     private let titles = ["Song Structure", "Chord Progression", "Drum Beats", "Melody"]
-    // Fill an array with four copies of the accent color so each lesson card shares one theme.
-    private let colors: [Color] = Array(repeating: Palette.accent, count: 4)
+    // Give each lesson module its own vinyl color for visual distinction on the home screen.
+    private let colors: [Color] = [
+        Color(red: 0.95, green: 0.45, blue: 0.45), // coral/red
+        Color(red: 0.45, green: 0.75, blue: 0.55), // green
+        Color(red: 0.95, green: 0.65, blue: 0.30), // orange
+        Color(red: 0.70, green: 0.55, blue: 0.95)  // purple
+    ]
     // Build the view hierarchy; SwiftUI calls this whenever observed state changes.
     var body: some View {
         // Wrap the menu in a stack driven by $path so appending an integer pushes the matching lesson view.
