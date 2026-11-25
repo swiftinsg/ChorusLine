@@ -213,7 +213,7 @@ struct StructureQuiz: View {
             // Animate the feedback text change so it appears smoothly.
             withAnimation(.easeOut(duration: 0.2)) {
                 // Tell the user to spin the vinyl and choose another answer.
-                feedback = "Not quite — spin and try again."
+                feedback = "Not quite, spin and try again."
             }
         }
     }
